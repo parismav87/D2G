@@ -9,6 +9,7 @@ characterArray  = []
 infoArray       = []
 importanceArray = []
 adviceArray     = []
+advicecharArray = []
 voteadviceArray = []
 
 def getGameId(root):
@@ -69,8 +70,8 @@ class Info(object):
         return self.dilemmaid+","+self.correctanswer+","+self.dilemmaempathyscore
 
 class Importance(object):
-    def __init__(self, gameId, dilemmaid, adviceid,importancetype,importancemoment,time):
-        self.gameId = gameId
+    def __init__(self, gameid, dilemmaid, adviceid,importancetype,importancemoment,time):
+        self.gameid = gameid
         self.dilemmaid = dilemmaid
         self.adviceid = adviceid
         self.importancetype = importancetype
@@ -78,10 +79,10 @@ class Importance(object):
         self.time = time
 
     def getCSVHeader(self):
-        return "gameId,dilemmaId,adviceid,importancetype,importancemoment,time"
+        return "gameId,dilemmaId,adviceid,importancetype,importancemoment,importancetime"
 
     def toCSV(self):
-        return self.gameId+"."+self.dilemmaid+","+self.adviceid+","+self.importancetype+","+self.importancemoment+","+self.time
+        return self.gameid+","+self.dilemmaid+","+self.adviceid+","+self.importancetype+","+self.importancemoment+","+self.time
 
 class Advice(object):
     def __init__(self,gameId,dilemmaId,adviceid,opentime,opengametime):
@@ -97,17 +98,29 @@ class Advice(object):
     def toCSV(self):
         return self.gameId+","+self.dilemmaId+","+self.adviceid+","+self.opentime+","+self.opengametime
 
-class VoteAdvice(object):
-    def __init__(self,gameId,dilemmaId,time):
-        self.gameId = gameId
-        self.dilemmaId = dilemmaId
-        self.time = time
+class AdviceChar(object):
+    def __init__(self,adviceid,advisor):
+        self.adviceid = adviceid
+        self.advisor = advisor
 
     def getCSVHeader(self):
-        return "gameId,dilemmaId,time"
+        return "adviceid,advisor"
 
     def toCSV(self):
-        return self.gameId+","+self.dilemmaId+","+self.time
+        return self.adviceid+","+self.advisor
+
+class VoteAdvice(object):
+    def __init__(self,gameId,dilemmaId,voteadvicetime,vote):
+        self.gameId = gameId
+        self.dilemmaId = dilemmaId
+        self.voteadvicetime = voteadvicetime
+        self.vote = vote
+
+    def getCSVHeader(self):
+        return "gameId,dilemmaId,voteadvicetime,vote"
+
+    def toCSV(self):
+        return self.gameId+","+self.dilemmaId+","+self.voteadvicetime+","+self.vote
 
 def parseDilemmas():
 	for sdmfeedback in root.iter('sdmfeedback'):
@@ -193,16 +206,30 @@ def parseAdvice():
                     a = Advice(gameid,dilemmaid,adviceid,opentime,opengametime)
                     adviceArray.append(a)
 
+def parseAdviceChar():
+    for sdmscenario in root.iter('sdmscenario'):
+        for dilemma in sdmscenario.iter('dilemma'):
+            for infos in dilemma.iter('infos'):
+                for info in infos.iter('info'):
+
+                    adviceid = info.find('name').text.strip()
+                    advisor = info.find('virtualcharactername').text.strip()
+                    advisor = advisor.replace('\n', '')
+
+                    ac = AdviceChar(adviceid,advisor)
+                    advicecharArray.append(ac)
+
 def parseVoteAdvice():
     for sdmuseraction in root.iter('sdmuseraction'):
         for showadvice in sdmuseraction.iter('showAdvice'):
             for dilem in showadvice.iter('dilemma'):
 
-                gameid =getGameId(root)
+                gameid = getGameId(root)
                 dilemmaid = dilem.find('name').text.strip()
-                time = showadvice.find('time').text.strip()
+                voteadvicetime = showadvice.find('time').text.strip()
+                vote = 'yes'
 
-                v = VoteAdvice(gameid,dilemmaid,time)
+                v = VoteAdvice(gameid,dilemmaid,voteadvicetime,vote)
                 voteadviceArray.append(v)
 
 def createCSV():
@@ -239,6 +266,11 @@ def createCSV():
     for advice in adviceArray:
         adviceFile.write(advice.toCSV().strip()+"\n")
 
+    advicecharFile = open("experimentout/advicechar.csv", "w+")
+    advicecharFile.write(advicecharArray[0].getCSVHeader()+"\n")
+    for advicechar in advicecharArray:
+        advicecharFile.write(advicechar.toCSV().strip()+"\n")
+
     voteadviceFile = open("experimentout/voteadvice.csv","w+")
     voteadviceFile.write(voteadviceArray[0].getCSVHeader()+"\n")
     for voteadvice in voteadviceArray:
@@ -252,6 +284,7 @@ def parseXML():
     parseInfo()
     parseImportance()
     parseAdvice()
+    parseAdviceChar()
     parseVoteAdvice()
 
 #-------   MAIN   -----------------	
