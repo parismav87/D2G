@@ -2,6 +2,7 @@
 import xml.etree.ElementTree as ET
 import sys
 import os
+from datetime import datetime as dt
 
 dilemmaArray    = []
 empathyArray    = []
@@ -16,6 +17,14 @@ def getGameId(root):
     sdmmeta = sdmgame.find('sdmmeta')
     gameid = sdmmeta.find('gameid').text.strip()
     return gameid
+
+def getUTCTime(timeString):
+    #print(timeString)
+    dateTime = dt.strptime(timeString, "%Y-%m-%dT%H:%M:%S.%f")
+    #print(dateTime)
+    utcTime = dt.timestamp(dateTime)
+    #print(utcTime)
+    return utcTime
 
 class Dilemma(object):
 	def __init__(self, gameId, dilemmaId, timeOpen, answerType):
@@ -76,7 +85,7 @@ class Importance(object):
         self.importancetype = importancetype
         self.importancemoment = importancemoment
         self.time = time
-
+		
     def getCSVHeader(self):
         return "gameId,dilemmaId,adviceid,importancetype,importancemoment,time"
 
