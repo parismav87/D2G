@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 import sys
 import os
 import re
+from datetime import datetime as dt
 
 dilemmaArray    = []
 empathyArray    = []
@@ -12,6 +13,14 @@ importanceArray = []
 adviceArray     = []
 advicecharArray = []
 voteadviceArray = []
+
+def getUTCTime(timeString):
+    #print(timeString)
+    dateTime = dt.strptime(timeString, "%Y-%m-%dT%H:%M:%S.%f")
+    #print(dateTime)
+    utcTime = dt.timestamp(dateTime)
+    #print(utcTime)
+    return utcTime
 
 def getGameId(root):
     sdmgame	= root.find('sdmgame')
