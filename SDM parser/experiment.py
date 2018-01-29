@@ -2,7 +2,7 @@
 import xml.etree.ElementTree as ET
 import sys
 import os
-from datetime import datetime as dt
+import re
 
 dilemmaArray    = []
 empathyArray    = []
@@ -19,13 +19,17 @@ def getGameId(root):
     gameid = sdmmeta.find('gameid').text.strip()
     return gameid
 
-def getUTCTime(timeString):
-    #print(timeString)
-    dateTime = dt.strptime(timeString, "%Y-%m-%dT%H:%M:%S.%f")
-    #print(dateTime)
-    utcTime = dt.timestamp(dateTime)
-    #print(utcTime)
-    return utcTime
+def getGameStart(root):
+    sdmgame	= root.find('sdmgame')
+    sdmmeta = sdmgame.find('sdmmeta')
+    gamestart = sdmmeta.find('gamestart').text.strip()
+    return gamestart
+
+def getGameEnd(root):
+    sdmgame	= root.find('sdmgame')
+    sdmmeta = sdmgame.find('sdmmeta')
+    gameend = sdmmeta.find('gameend').text.strip()
+    return gameend
 
 class Dilemma(object):
 	def __init__(self, gameId, dilemmaId, timeOpen, answerType):
@@ -86,7 +90,7 @@ class Importance(object):
         self.importancetype = importancetype
         self.importancemoment = importancemoment
         self.time = time
-		
+
     def getCSVHeader(self):
         return "gameId,dilemmaId,adviceid,importancetype,importancemoment,importancetime"
 
@@ -94,7 +98,9 @@ class Importance(object):
         return self.gameid+","+self.dilemmaid+","+self.adviceid+","+self.importancetype+","+self.importancemoment+","+self.time
 
 class Advice(object):
-    def __init__(self,gameId,dilemmaId,adviceid,opentime,opengametime):
+    def __init__(self,gameStart,gameEnd,gameId,dilemmaId,adviceid,opentime,opengametime):
+        self.gameStart = gameStart
+        self.gameEnd = gameEnd
         self.gameId = gameId
         self.dilemmaId = dilemmaId
         self.adviceid = adviceid
@@ -102,21 +108,22 @@ class Advice(object):
         self.opengametime = opengametime
 
     def getCSVHeader(self):
-        return "gameId,dilemmaId,adviceid,opentime,opengametime"
+        return "gameStart,gameEnd,gameId,dilemmaId,adviceid,opentime,opengametime"
 
     def toCSV(self):
-        return self.gameId+","+self.dilemmaId+","+self.adviceid+","+self.opentime+","+self.opengametime
+        return self.gameStart+","+self.gameEnd+","+self.gameId+","+self.dilemmaId+","+self.adviceid+","+self.opentime+","+self.opengametime
 
 class AdviceChar(object):
-    def __init__(self,adviceid,advisor):
+    def __init__(self,adviceid,advisor,dilemmaid):
         self.adviceid = adviceid
         self.advisor = advisor
+        self.dilemma = dilemmaid
 
     def getCSVHeader(self):
-        return "adviceid,advisor"
+        return "adviceid,advisor,dilemmaId"
 
     def toCSV(self):
-        return self.adviceid+","+self.advisor
+        return self.adviceid+","+self.advisor+","+self.dilemma
 
 class VoteAdvice(object):
     def __init__(self,gameId,dilemmaId,voteadvicetime,vote):
@@ -206,13 +213,15 @@ def parseAdvice():
             for dilem in openinfo.iter('dilemma'):
                 for info in openinfo.iter('info'):
 
+                    gamestart = getGameStart(root)
+                    gameend = getGameEnd(root)
                     gameid = getGameId(root)
                     dilemmaid = dilem.find('name').text.strip()
                     adviceid = info.find('name').text.strip()
                     opentime = openinfo.find('time').text.strip()
                     opengametime = openinfo.find('gameTime').text.strip()
 
-                    a = Advice(gameid,dilemmaid,adviceid,opentime,opengametime)
+                    a = Advice(gamestart,gameend,gameid,dilemmaid,adviceid,opentime,opengametime)
                     adviceArray.append(a)
 
 def parseAdviceChar():
@@ -223,9 +232,9 @@ def parseAdviceChar():
 
                     adviceid = info.find('name').text.strip()
                     advisor = info.find('virtualcharactername').text.strip()
-                    advisor = advisor.replace('\n', '')
+                    dilemmaid = dilemma.find('name').text.strip()
 
-                    ac = AdviceChar(adviceid,advisor)
+                    ac = AdviceChar(adviceid,advisor,dilemmaid)
                     advicecharArray.append(ac)
 
 def parseVoteAdvice():
