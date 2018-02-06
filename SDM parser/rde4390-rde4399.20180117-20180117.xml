@@ -18,8 +18,7 @@ Although the CoPI and ROT are only just operational, after a short consultation 
 		<style>gate</style>
 		<virtualcharacters>
 			<virtualcharacter>
-				<name>Communication 
-and Press information</name>
+				<name>Communication and Press</name>
 				<teammember>true</teammember>
 				<charactertype>OM</charactertype>
 				<shieldtype>None</shieldtype>
@@ -77,8 +76,7 @@ and Press information</name>
 Because of the potential explosion hazard, the CoPI and ROT plan to evacuate the surrounding area within a radius of 300 meters around the burning truck. An emergency ordinance is being prepared. Within the evacuation radius is a daycare centre. The police are sent to the nursery to assist with the evacuation, because every child care provider is able to attend to at most four children. It is expected that there will also be parents who want to pick up the children themselves. Are you allowing them to come to the day nursery and assist with the evacuation, or do you lock down the area?</situationdescription>
 				<sources>
 					<source>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</source>
 					<source>
 						<virtualcharactername>Public health services</virtualcharactername>
@@ -122,8 +120,7 @@ and Press information</virtualcharactername>
 						<title>Unclear message</title>
 						<name>Unclear message9599</name>
 						<description>If parents are allowed to pick up their own children, it will get confusing for everyone. Some have to get out of the area, others are allowed to come into the area. This is an unclear message.</description>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</info>
 				</infos>
 				<question>Will you prohibit parents from picking up their own children from the evacuation area?</question>
@@ -132,8 +129,7 @@ and Press information</virtualcharactername>
 				<roleno>BLUESTYLE</roleno>
 				<advices>
 					<advice displaytime="20">
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 						<positive>true</positive>
 					</advice>
 					<advice displaytime="40">
@@ -167,8 +163,7 @@ and Press information</virtualcharactername>
 				<situationdescription>Residents in an area up to 500 meter around the tanker truck are asked to stay inside and be extra cautious. You also issue an emergency ordinance for this second ring in the area. The police verbally informed the residents inside the enclosed area and pointed at the prohibition of smoking and open flames. Windows and doors have to remain shut. Some residents still go out onto the street. They do laconic over the instruction and make video-recordings with their phones.</situationdescription>
 				<sources>
 					<source>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</source>
 					<source>
 						<virtualcharactername>Public health services</virtualcharactername>
@@ -206,8 +201,7 @@ and Press information</virtualcharactername>
 						<title>Communicate seriousness</title>
 						<name>communicate seriousness4271</name>
 						<description>It seems, that we did not communicate the seriousness of the situation well enough. We should emphasize this first.</description>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</info>
 					<info displaytime="12" forced="false" popup="false">
 						<title>Violate emergency ordinance</title>
@@ -238,8 +232,7 @@ and Press information</virtualcharactername>
 						<positive>true</positive>
 					</advice>
 					<advice displaytime="40">
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 						<positive>false</positive>
 					</advice>
 				</advices>
@@ -260,8 +253,7 @@ The "Burgermeester J.H.H. Mansschool" is located 450 meters from the tanker truc
 </situationdescription>
 				<sources>
 					<source>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</source>
 					<source>
 						<virtualcharactername>Public health services</virtualcharactername>
@@ -287,8 +279,7 @@ and Press information</virtualcharactername>
 						<title>Precautious evacuation</title>
 						<name>Precautious evacuation10917</name>
 						<description>It is precautious. Then it goes far to let 300 children have a retake. This is barely explainable.</description>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</info>
 					<info displaytime="8" forced="false" popup="false">
 						<title>Educational inspection</title>
@@ -315,8 +306,7 @@ and Press information</virtualcharactername>
 				<roleno>BLUESTYLE</roleno>
 				<advices>
 					<advice displaytime="60">
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 						<positive>false</positive>
 					</advice>
 					<advice displaytime="0">
@@ -350,8 +340,7 @@ and Press information</virtualcharactername>
 				<situationdescription>The truck was the cause that an international train stranded at the station of Trouveen; because the danger circle also includes the rail, the train cannot go on. There is a delegation of the "women of Srebrenica" in the train, who are on their way to the International Court in The Hague. Approximately 150 passengers are taken care of in a sports hall close to the station, where they are provided with coffee, tea and cake.</situationdescription>
 				<sources>
 					<source>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</source>
 					<source>
 						<virtualcharactername>Public health services</virtualcharactername>
@@ -395,8 +384,7 @@ and Press information</virtualcharactername>
 						<title>Show involvement</title>
 						<name>Show involvement1546</name>
 						<description>It is good to show your involvement to the stranded travellers also. You have to fulfill your role as figurehead.</description>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</info>
 				</infos>
 				<question>Are you visiting the sports hall to heighten the mood of the passengers?</question>
@@ -421,8 +409,7 @@ and Press information</virtualcharactername>
 						<positive>true</positive>
 					</advice>
 					<advice displaytime="0">
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 						<positive>true</positive>
 					</advice>
 				</advices>
@@ -443,8 +430,7 @@ By now you know better; From an initial interview the police concluded that the 
 </situationdescription>
 				<sources>
 					<source>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</source>
 					<source>
 						<virtualcharactername>Public health services</virtualcharactername>
@@ -482,8 +468,7 @@ and Press information</virtualcharactername>
 						<title>Shut down</title>
 						<name>Shut down6980</name>
 						<description>You have to immediately shut down these kind of rumours. Otherwise this will take on a life on its own.</description>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</info>
 					<info displaytime="16" forced="false" popup="false">
 						<title>Fire department mistake</title>
@@ -502,8 +487,7 @@ and Press information</virtualcharactername>
 						<positive>false</positive>
 					</advice>
 					<advice displaytime="60">
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 						<positive>true</positive>
 					</advice>
 					<advice displaytime="40">
@@ -533,8 +517,7 @@ and Press information</virtualcharactername>
 				<situationdescription>In the meantime the municipality was warned by the director of a laboratory of a pharmaceutical research institute, that his lab is at risk due to the operation. It seems that because of heat, smoke and dust particles expensive equipment is threatened to be damaged. The sensors, that seal the rooms with virusses from the outside world, are impacted. This can be resolved by building a big water screen at the institute. The only disadvantage here is that it will evoke questions. Until now it was always kept a secret what kind of exotic virusses were stored in the lab.</situationdescription>
 				<sources>
 					<source>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</source>
 					<source>
 						<virtualcharactername>Public health services</virtualcharactername>
@@ -578,8 +561,7 @@ and Press information</virtualcharactername>
 						<title>Safety first</title>
 						<name>Safety first14519</name>
 						<description>We will explain the story later on. The safety of the residents is more important at the moment.</description>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</info>
 				</infos>
 				<question>Will you assign your operational leader to change the deployment strategy?</question>
@@ -596,8 +578,7 @@ and Press information</virtualcharactername>
 						<positive>false</positive>
 					</advice>
 					<advice displaytime="60">
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 						<positive>true</positive>
 					</advice>
 					<advice displaytime="20">
@@ -628,8 +609,7 @@ The Youth news wants that you explain in simple words to the children what happe
 </situationdescription>
 				<sources>
 					<source>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</source>
 					<source>
 						<virtualcharactername>Public health services</virtualcharactername>
@@ -667,8 +647,7 @@ and Press information</virtualcharactername>
 						<title>Key message</title>
 						<name>Key message6825</name>
 						<description>We have drafted a nice key message, thus you will figure it out.</description>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</info>
 					<info displaytime="15" forced="false" popup="false">
 						<title>Explain to everyone</title>
@@ -695,8 +674,7 @@ and Press information</virtualcharactername>
 						<positive>false</positive>
 					</advice>
 					<advice displaytime="0">
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 						<positive>true</positive>
 					</advice>
 					<advice displaytime="60">
@@ -718,8 +696,7 @@ and Press information</virtualcharactername>
 				<situationdescription>The incident evolved around 5 o'clock in the afternoon very fast in short time. After the paint of the tanker truck starts to peel off, it breaks open and it comes to an explosion. Three firemen of Trouveen were hit deadly by scattering pieces of the tanker truck. The dejection in the different crisis teams is huge. The question arises who will inform the families of the deceased firemen. The commandant of the fire department suggests to join the police and to inform the families together.</situationdescription>
 				<sources>
 					<source>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</source>
 					<source>
 						<virtualcharactername>Public health services</virtualcharactername>
@@ -739,8 +716,7 @@ and Press information</virtualcharactername>
 						<title>Good suggestion</title>
 						<name>Good suggestion12180</name>
 						<description>That is a good suggestion of the fire department commandant.</description>
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 					</info>
 					<info displaytime="5" forced="false" popup="false">
 						<title>Why not</title>
@@ -781,8 +757,7 @@ and Press information</virtualcharactername>
 						<positive>true</positive>
 					</advice>
 					<advice displaytime="20">
-						<virtualcharactername>Communication 
-and Press information</virtualcharactername>
+						<virtualcharactername>Communication and Press</virtualcharactername>
 						<positive>true</positive>
 					</advice>
 					<advice displaytime="0">
@@ -2276,7 +2251,7 @@ The widows feel supported by the residents of Trouveen who are leaving flowers a
 		</empathies>
 		<sources>
 			<source askedinformation="5" mood="2" totalinformation="8">
-				<name>Communication  and Press information</name>
+				<name>Communication and Press</name>
 			</source>
 			<source askedinformation="3" mood="0" totalinformation="8">
 				<name>Public health services</name>
