@@ -73,8 +73,8 @@ def getSensorStats(game):
 	game.avgHR = np.average(game.hrInGame)
 	game.stdHR = np.std(game.hrInGame)
 
-	plt.plot(game.hrInGame)
-   	plt.show()
+	# plt.plot(game.hrInGame)
+ #   	plt.show()
 
 	for h in game.hrInGame:
 		h = h-game.avgHR
@@ -878,38 +878,37 @@ if len(sys.argv)>1:
  					# print gameid
  					filepath = os.path.join(d3,f3)
 
- 					# for game in gamesArray:
- 					game = gamesArray[10]
-					if gameid == game.gameid:
-						# print game.gamestartUTC
-						# print game.gameendUTC
-						# print "======================"
-						# print "found game " + gameid
-						with open(filepath, 'rb') as csvfile:
-					   		reader = csv.reader(csvfile, delimiter='\t', quotechar='|')
-					   		i = 0
-					   		sc = []
-					   		hr = []
-					   		timestamps = []
-					   		rawHR = []
-					   		for row in reader:
-					   			if i>2:
-					   				rawHR.append(float(row[4]))
-					   				sc.append(round(float(row[2]),2))
-					   				hr.append(round(float(row[6]),2))
-					   				timestamps.append(float(row[0])/1000) # no millis
-					   				# print row[0]
-					   				i+=1
-					   			else: 
-					   				i+=1
-					   	# plt.plot(sc)
-					   	# plt.axis([0, i, 0, 20])
-					   	# plt.show()
-					   	game.scSignal = sc
-					   	game.hrSignal = hr
-					   	game.timestamps = timestamps
-					   	game.rawHR = rawHR
-					   	getSensorStats(game)
+ 					for game in gamesArray:
+						if gameid == game.gameid:
+							# print game.gamestartUTC
+							# print game.gameendUTC
+							# print "======================"
+							# print "found game " + gameid
+							with open(filepath, 'rb') as csvfile:
+						   		reader = csv.reader(csvfile, delimiter='\t', quotechar='|')
+						   		i = 0
+						   		sc = []
+						   		hr = []
+						   		timestamps = []
+						   		rawHR = []
+						   		for row in reader:
+						   			if i>2:
+						   				rawHR.append(float(row[4]))
+						   				sc.append(round(float(row[2]),2))
+						   				hr.append(round(float(row[6]),2))
+						   				timestamps.append(float(row[0])/1000) # no millis
+						   				# print row[0]
+						   				i+=1
+						   			else: 
+						   				i+=1
+						   	# plt.plot(sc)
+						   	# plt.axis([0, i, 0, 20])
+						   	# plt.show()
+						   	game.scSignal = sc
+						   	game.hrSignal = hr
+						   	game.timestamps = timestamps
+						   	game.rawHR = rawHR
+						   	getSensorStats(game)
 						   	# print game.avgHR, ",", game.version
 					   	# print game.maxHR, " - ",  game.minHR ," - ", game.avgHR ," - ", game.stdHR ," - ", game.timestampMaxHR ," - ", game.timestampMinHR ," - ", game.diffTimestampHR ," - ", game.diffHR ," - ", game.hrv ," - ", game.version
 					   	# print game.maxHR, " - ",  game.minSC ," - ", game.avgSC ," - ", game.stdSC ," - ", game.timestampMaxSC ," - ", game.timestampMinSC ," - ", game.diffTimestampSC ," - ", game.diffSC ," - ", game.version
@@ -918,11 +917,14 @@ if len(sys.argv)>1:
 	maxHR1, minHR1, avgHR1, stdHR1, timestampMaxHR1, timestampMinHR1, diffTimestampHR1, diffHR1, maxSC1, minSC1, avgSC1, stdSC1, timestampMaxSC1, timestampMinSC1, diffTimestampSC1, diffSC1, hrv1 = [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
 	
 
+
+
 	for k,v in enumerate(gamesArray): #clean up false data (user not reading anything/no sensor data)
 		if v.maxHR == 0  or v.sumDilInfosRead == 0: 
 			gamesArray.pop(k)
 
 
+	print "number of games: ", len(gamesArray)
 	getStats()
 
 
