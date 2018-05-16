@@ -3,12 +3,13 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+from scipy.signal import butter, lfilter
 
-
-def movAvg(dataList, window):
+def getMovAvg(dataList, window):
 	movAvg = []
-	cumSum = [0]
 	avg = np.mean(dataList)
+	cumSum = [0]
+	
 	for k,v in enumerate(dataList,1):
 		cumSum.append(cumSum[k-1] + v) 
 		if k >= window:
@@ -16,10 +17,10 @@ def movAvg(dataList, window):
 			augmented = m*1.1 #to avoid peak detection in 2nd heart contraction
 			movAvg.append(augmented)
 		else:
-			movAvg.append(avg)
+			movAvg.append(0)
 	return movAvg
 
-def peakDetection(dataList, movAvg):
+def getPeakDetection(dataList, movAvg):
 	window = []
 	peakList = []
 	for k,v in enumerate(dataList):
@@ -36,7 +37,7 @@ def peakDetection(dataList, movAvg):
 	return peakList
 
 
-def intervals(peakList):
+def getIntervals(peakList):
 	intervals = []
 	for k,v in enumerate(peakList):
 		if k < len(peakList)-1:
@@ -46,53 +47,60 @@ def intervals(peakList):
 	return intervals
 
 
-def bpm(intervals):
+def getBpm(intervals):
 	count = 0
 	bpms = []
 	for k,v in enumerate(intervals):
 		bpms.append(60000/v) #transform to beats per sec
 	return bpms
 
-def intervalDiffs(intervals):
+def getIntervalDiffs(intervals):
 	intervalDiffs = []
 	for k,v in enumerate(intervals):
 		if k>0:
 			intervalDiffs.append(abs(intervals[k] - intervals[k-1]))
 	return intervalDiffs
 
-def intervalSqdiffs(intervals):
+def getIntervalSqdiffs(intervals):
 	intervalSqdiffs = []
 	for k,v in enumerate(intervals):
 		if k>0:
 			intervalSqdiffs.append(math.pow(intervals[k] - intervals[k-1], 2))
 	return intervalSqdiffs
 
-def rmssd(intervalSqdiffs):
+def getRmssd(intervalSqdiffs):
 	return np.sqrt(np.mean(intervalSqdiffs))
 
-with open("example.csv", 'rb') as csvfile:
-	reader = csv.reader(csvfile, delimiter='\t', quotechar='|')
-	i = 0
-	rawHR = []
-	for row in reader:
-		if i>2:
-			rawHR.append(float(row[4]))
-			i+=1
-		else: 
-			i+=1
+def getButterWorth(data, cutoff, order):
+	nyq = 0.5 * 1000 #Nyquist frequeny is half the sampling frequency
+	normal_cutoff = cutoff / nyq
+	b, a = butter(order, normal_cutoff, btype='low', analog=False)
+	y = lfilter(b, a, data)
+	return y
 
-mov_avg = movAvg(rawHR, 750)
-peakList = peakDetection(rawHR, mov_avg)
-ybeat = [rawHR[x] for x in peakList]
-intervals = intervals(peakList)
-sqdiffs = intervalSqdiffs(intervals)
-rmssd = rmssd(sqdiffs)
-bpms = bpm(intervals)
 
-# print sqdiffs
-print rmssd
-plt.plot(rawHR)
-plt.plot(mov_avg)
-plt.scatter(peakList, ybeat, color="red")
-# plt.plot(bpms)
-plt.show()
+def run(rawHR):
+	
+	buff = []
+	for r in rawHR:
+		buff.append(math.pow(r,3))
+	filteredHR = getButterWorth(buff, 2.5, 5)
+	mov_avg = getMovAvg(filteredHR, 750)
+	peakList = getPeakDetection(filteredHR, mov_avg)
+	ybeat = [filteredHR[x] for x in peakList]
+	intervals = getIntervals(peakList)
+	sqdiffs = getIntervalSqdiffs(intervals)
+	rmssd = getRmssd(sqdiffs)
+	bpms = getBpm(intervals)
+
+
+
+
+	# print sqdiffs
+	print rmssd
+	# plt.plot(rawHR)
+	plt.plot(filteredHR)
+	plt.plot(mov_avg)
+	plt.scatter(peakList, ybeat, color="red")
+	# plt.plot(bpms)
+	plt.show()

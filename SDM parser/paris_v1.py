@@ -11,6 +11,7 @@ import pytz
 import math 
 from hrv.classical import time_domain
 from scipy import stats
+import hrvcalc
 
 gamesArray = []
 
@@ -64,6 +65,7 @@ def getSensorStats(game):
 			if v< minHR:
 				minHR = v
 				timestampMinHR = i
+			game.rawHRInGame.append(game.rawHR[i])
 			game.hrInGame.append(v) # add hr value to ingame HR
 
 		elif game.timestamps[i]> game.gameendUTC and  not lastMeasurement:
@@ -188,6 +190,7 @@ class Game(object):
 		self.scInGame = []
 		self.hrInGame = []
 		self.rawHR = []
+		self.rawHRInGame = []
 		self.avgHR = 0
 		self.stdHR = 0
 		self.minHR = 0
@@ -879,6 +882,7 @@ if len(sys.argv)>1:
  					filepath = os.path.join(d3,f3)
 
  					for game in gamesArray:
+ 					# game = gamesArray[2]
 						if gameid == game.gameid:
 							# print game.gamestartUTC
 							# print game.gameendUTC
@@ -909,10 +913,11 @@ if len(sys.argv)>1:
 						   	game.timestamps = timestamps
 						   	game.rawHR = rawHR
 						   	getSensorStats(game)
+						   	hrvcalc.run(game.rawHRInGame)
 						   	# print game.avgHR, ",", game.version
 					   	# print game.maxHR, " - ",  game.minHR ," - ", game.avgHR ," - ", game.stdHR ," - ", game.timestampMaxHR ," - ", game.timestampMinHR ," - ", game.diffTimestampHR ," - ", game.diffHR ," - ", game.hrv ," - ", game.version
 					   	# print game.maxHR, " - ",  game.minSC ," - ", game.avgSC ," - ", game.stdSC ," - ", game.timestampMaxSC ," - ", game.timestampMinSC ," - ", game.diffTimestampSC ," - ", game.diffSC ," - ", game.version
-	
+
 	maxHR0, minHR0, avgHR0, stdHR0, timestampMaxHR0, timestampMinHR0, diffTimestampHR0, diffHR0, maxSC0, minSC0, avgSC0, stdSC0, timestampMaxSC0, timestampMinSC0, diffTimestampSC0, diffSC0, hrv0 = [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
 	maxHR1, minHR1, avgHR1, stdHR1, timestampMaxHR1, timestampMinHR1, diffTimestampHR1, diffHR1, maxSC1, minSC1, avgSC1, stdSC1, timestampMaxSC1, timestampMinSC1, diffTimestampSC1, diffSC1, hrv1 = [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
 	
