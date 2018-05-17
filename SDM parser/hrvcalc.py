@@ -3,7 +3,7 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 import math
-from scipy.signal import butter, lfilter
+from scipy import signal
 
 def getMovAvg(dataList, window):
 	movAvg = []
@@ -14,7 +14,7 @@ def getMovAvg(dataList, window):
 		cumSum.append(cumSum[k-1] + v) 
 		if k >= window:
 			m = (cumSum[k] - cumSum[k-window]) / window
-			augmented = m*1.1 #to avoid peak detection in 2nd heart contraction
+			augmented = m#to avoid peak detection in 2nd heart contraction
 			movAvg.append(augmented)
 		else:
 			movAvg.append(0)
@@ -34,6 +34,9 @@ def getPeakDetection(dataList, movAvg):
 			beatPosition = k - len(window) + window.index(max(window))
 			peakList.append(beatPosition)
 			window = []
+	if len(window) > 1:
+		beatPosition = len(dataList) - len(window) + window.index(max(window))
+		peakList.append(beatPosition)
 	return peakList
 
 
@@ -47,11 +50,13 @@ def getIntervals(peakList):
 	return intervals
 
 
-def getBpm(intervals):
-	count = 0
+def getBpm(intervals, peakList):
 	bpms = []
+	start = 0
 	for k,v in enumerate(intervals):
-		bpms.append(60000/v) #transform to beats per sec
+		for i in range(start, peakList[k]):
+			bpms.append(60000/v) #transform to beats per sec
+		start = peakList[k]+1
 	return bpms
 
 def getIntervalDiffs(intervals):
@@ -74,33 +79,36 @@ def getRmssd(intervalSqdiffs):
 def getButterWorth(data, cutoff, order):
 	nyq = 0.5 * 1000 #Nyquist frequeny is half the sampling frequency
 	normal_cutoff = cutoff / nyq
-	b, a = butter(order, normal_cutoff, btype='low', analog=False)
-	y = lfilter(b, a, data)
+	b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
+	y = signal.lfilter(b, a, data)
 	return y
 
 
 def run(rawHR):
-	
 	buff = []
 	for r in rawHR:
 		buff.append(math.pow(r,3))
-	filteredHR = getButterWorth(buff, 2.5, 5)
+
+	filteredHR = getButterWorth(buff, 1.5 , 3)
+	# filteredHR = rawHR
 	mov_avg = getMovAvg(filteredHR, 750)
 	peakList = getPeakDetection(filteredHR, mov_avg)
 	ybeat = [filteredHR[x] for x in peakList]
 	intervals = getIntervals(peakList)
 	sqdiffs = getIntervalSqdiffs(intervals)
 	rmssd = getRmssd(sqdiffs)
-	bpms = getBpm(intervals)
+	bpms = getBpm(intervals, peakList)
 
-
-
-
-	# print sqdiffs
-	print rmssd
+	print "HRV: ", rmssd
+	print "avg BPM: ", np.mean(bpms)
+	# plt.ion()
 	# plt.plot(rawHR)
-	plt.plot(filteredHR)
-	plt.plot(mov_avg)
-	plt.scatter(peakList, ybeat, color="red")
+	# plt.plot(filteredHR)
+	# plt.plot(mov_avg)
+	# plt.scatter(peakList, ybeat, color="red")
 	# plt.plot(bpms)
-	plt.show()
+	# plt.show()
+
+	return bpms
+	# print len(filteredHR)
+	# print len(bpms)

@@ -79,7 +79,7 @@ def getSensorStats(game):
  #   	plt.show()
 
 	for h in game.hrInGame:
-		h = h-game.avgHR
+		game.hrBaseline = h-game.avgHR
 
 
 	game.maxHR = maxHR - game.avgHR
@@ -191,6 +191,7 @@ class Game(object):
 		self.hrInGame = []
 		self.rawHR = []
 		self.rawHRInGame = []
+		self.hrBaseline = []
 		self.avgHR = 0
 		self.stdHR = 0
 		self.minHR = 0
@@ -883,40 +884,45 @@ if len(sys.argv)>1:
 
  					for game in gamesArray:
  					# game = gamesArray[2]
-						if gameid == game.gameid:
-							# print game.gamestartUTC
-							# print game.gameendUTC
-							# print "======================"
-							# print "found game " + gameid
-							with open(filepath, 'rb') as csvfile:
-						   		reader = csv.reader(csvfile, delimiter='\t', quotechar='|')
-						   		i = 0
-						   		sc = []
-						   		hr = []
-						   		timestamps = []
-						   		rawHR = []
-						   		for row in reader:
-						   			if i>2:
-						   				rawHR.append(float(row[4]))
-						   				sc.append(round(float(row[2]),2))
-						   				hr.append(round(float(row[6]),2))
-						   				timestamps.append(float(row[0])/1000) # no millis
-						   				# print row[0]
-						   				i+=1
-						   			else: 
-						   				i+=1
-						   	# plt.plot(sc)
-						   	# plt.axis([0, i, 0, 20])
-						   	# plt.show()
-						   	game.scSignal = sc
-						   	game.hrSignal = hr
-						   	game.timestamps = timestamps
-						   	game.rawHR = rawHR
-						   	getSensorStats(game)
-						   	hrvcalc.run(game.rawHRInGame)
-						   	# print game.avgHR, ",", game.version
-					   	# print game.maxHR, " - ",  game.minHR ," - ", game.avgHR ," - ", game.stdHR ," - ", game.timestampMaxHR ," - ", game.timestampMinHR ," - ", game.diffTimestampHR ," - ", game.diffHR ," - ", game.hrv ," - ", game.version
-					   	# print game.maxHR, " - ",  game.minSC ," - ", game.avgSC ," - ", game.stdSC ," - ", game.timestampMaxSC ," - ", game.timestampMinSC ," - ", game.diffTimestampSC ," - ", game.diffSC ," - ", game.version
+							if gameid == game.gameid:
+								# print game.gamestartUTC
+								# print game.gameendUTC
+								# print "======================"
+								# print "found game " + gameid
+								with open(filepath, 'rb') as csvfile:
+							   		reader = csv.reader(csvfile, delimiter='\t', quotechar='|')
+							   		i = 0
+							   		sc = []
+							   		hr = []
+							   		timestamps = []
+							   		rawHR = []
+							   		for row in reader:
+							   			if i>2:
+							   				rawHR.append(float(row[4]))
+							   				sc.append(round(float(row[2]),2))
+							   				hr.append(round(float(row[6]),2))
+							   				timestamps.append(float(row[0])/1000) # no millis
+							   				# print row[0]
+							   				i+=1
+							   			else: 
+							   				i+=1
+							   	# plt.plot(sc)
+							   	# plt.axis([0, i, 0, 20])
+							   	# plt.show()
+							   	game.scSignal = sc
+							   	game.hrSignal = hr
+							   	game.timestamps = timestamps
+							   	game.rawHR = rawHR
+							   	getSensorStats(game)
+							   	print game.version
+							   	bpms = hrvcalc.run(game.rawHRInGame)
+							   	plt.plot(bpms)
+							   	plt.plot(game.hrInGame)
+							   	plt.show()
+
+							   	# print game.avgHR, ",", game.version
+						   	# print game.maxHR, " - ",  game.minHR ," - ", game.avgHR ," - ", game.stdHR ," - ", game.timestampMaxHR ," - ", game.timestampMinHR ," - ", game.diffTimestampHR ," - ", game.diffHR ," - ", game.hrv ," - ", game.version
+						   	# print game.maxHR, " - ",  game.minSC ," - ", game.avgSC ," - ", game.stdSC ," - ", game.timestampMaxSC ," - ", game.timestampMinSC ," - ", game.diffTimestampSC ," - ", game.diffSC ," - ", game.version
 
 	maxHR0, minHR0, avgHR0, stdHR0, timestampMaxHR0, timestampMinHR0, diffTimestampHR0, diffHR0, maxSC0, minSC0, avgSC0, stdSC0, timestampMaxSC0, timestampMinSC0, diffTimestampSC0, diffSC0, hrv0 = [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
 	maxHR1, minHR1, avgHR1, stdHR1, timestampMaxHR1, timestampMinHR1, diffTimestampHR1, diffHR1, maxSC1, minSC1, avgSC1, stdSC1, timestampMaxSC1, timestampMinSC1, diffTimestampSC1, diffSC1, hrv1 = [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
