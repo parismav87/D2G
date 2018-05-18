@@ -5,7 +5,7 @@ import numpy as np
 import math
 from scipy import signal
 
-def getMovAvg(dataList, window):
+def getMovAvg(dataList, window, aug):
 	movAvg = []
 	avg = np.mean(dataList)
 	cumSum = [0]
@@ -14,7 +14,7 @@ def getMovAvg(dataList, window):
 		cumSum.append(cumSum[k-1] + v) 
 		if k >= window:
 			m = (cumSum[k] - cumSum[k-window]) / window
-			augmented = m  #to avoid peak detection in 2nd heart contraction
+			augmented = m + ((m*aug)/100) #to avoid peak detection in 2nd heart contraction
 			movAvg.append(augmented)
 		else:
 			movAvg.append(0)
@@ -191,17 +191,23 @@ def run(game):
 
 
 	filteredHR = getButterWorth(buff, 1.5 , 2)
+
+	augList = [1, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 150, 200, 300]
 	# filteredHR = rawHR
-	mov_avg = getMovAvg(filteredHR, 768) #0.75*1024
-	peakList = getPeakDetection(filteredHR, mov_avg)
-	ybeat = [filteredHR[x] for x in peakList]
-	intervals = getIntervals(peakList)
-	sqdiffs = getIntervalSqdiffs(intervals)
-	rmssd = getRmssd(sqdiffs)
-	bpms = getBpm(intervals, peakList)
-
-
-	game.hrv = rmssd
+	for aug in augList:
+		mov_avg = getMovAvg(filteredHR, 768, aug) #0.75*1024
+		peakList = getPeakDetection(filteredHR, mov_avg)
+		ybeat = [filteredHR[x] for x in peakList]
+		intervals = getIntervals(peakList)
+		sqdiffs = getIntervalSqdiffs(intervals)
+		rmssd = getRmssd(sqdiffs)
+		bpms = getBpm(intervals, peakList)
+		game.hrv = rmssd
+		print "......"
+		print game.hrv
+		print np.mean(bpms)
+		print "......"
+	
 
 	getHRStats(game,bpms)
 	getSCStats(game)
