@@ -192,30 +192,48 @@ def run(game):
 
 	filteredHR = getButterWorth(buff, 1.5 , 2)
 
-	augList = [1, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 150, 200, 300]
+	augList = [-40, -30, -20, -10, -5, -1, 1, 5, 10, 15, 20, 25, 30, 40, 50]
+	statsDict = {}
 	# filteredHR = rawHR
-	for aug in augList:
+	for k, aug in enumerate(augList):
 		mov_avg = getMovAvg(filteredHR, 768, aug) #0.75*1024
 		peakList = getPeakDetection(filteredHR, mov_avg)
 		ybeat = [filteredHR[x] for x in peakList]
 		intervals = getIntervals(peakList)
+		rrsd = np.std(intervals)
 		sqdiffs = getIntervalSqdiffs(intervals)
 		rmssd = getRmssd(sqdiffs)
 		bpms = getBpm(intervals, peakList)
-		game.hrv = rmssd
+		# game.hrv = rmssd
+		temp = {
+			'rrsd' : rrsd,
+			'bpms' : bpms,
+			'hrv' : rmssd
+		}
+		statsDict[str(k)] = temp
 		print "......"
-		print game.hrv
+		print aug
+		print rrsd
 		print np.mean(bpms)
 		print "......"
+
+	minrrsd = 99999
+	minBpms = []
+	for d in statsDict:
+		if not math.isnan(np.mean(statsDict[d]['bpms'])) and statsDict[d]['rrsd']<minrrsd:
+			minrrsd = statsDict[d]['rrsd']
+			minBpms = statsDict[d]['bpms']
+			game.hrv = statsDict[d]['hrv']
+
 	
 
-	getHRStats(game,bpms)
+	getHRStats(game,minBpms)
 	getSCStats(game)
 
 	# print "HRV: ", rmssd
 	# print "avg BPM: ", np.mean(bpms)
 	# plt.ion()
-	if rmssd>190:
+	if game.hrv>190:
 		# plt.plot(buff)
 		plt.plot(filteredHR)
 		plt.plot(mov_avg)
