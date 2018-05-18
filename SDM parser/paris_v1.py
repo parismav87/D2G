@@ -913,12 +913,13 @@ if len(sys.argv)>1:
 							   	game.hrSignal = hr
 							   	game.timestamps = timestamps
 							   	game.rawHR = rawHR
-							   	getSensorStats(game)
-							   	print game.version
-							   	bpms = hrvcalc.run(game.rawHRInGame)
-							   	plt.plot(bpms)
-							   	plt.plot(game.hrInGame)
-							   	plt.show()
+							   	# getSensorStats(game)
+							   	# print game.version
+							   	hrvcalc.run(game)
+							   	# print "++++++++++++++++++++"
+							   	# plt.plot(bpms)
+							   	# plt.plot(game.hrInGame)
+							   	# plt.show()
 
 							   	# print game.avgHR, ",", game.version
 						   	# print game.maxHR, " - ",  game.minHR ," - ", game.avgHR ," - ", game.stdHR ," - ", game.timestampMaxHR ," - ", game.timestampMinHR ," - ", game.diffTimestampHR ," - ", game.diffHR ," - ", game.hrv ," - ", game.version
