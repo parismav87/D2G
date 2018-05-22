@@ -130,6 +130,7 @@ def getSensorStats(game):
 
 	game.maxSC = maxSC - game.avgSC
 	game.minSC = minSC - game.avgSC
+	game.shiftSC = game.endSC - game.initSC
 	game.timestampMaxSC = float(timestampMaxSC)/len(game.timestamps)
 	game.timestampMinSC = float(timestampMinSC)/len(game.timestamps)
 	game.diffSC = maxSC - minSC
@@ -140,6 +141,7 @@ def getSensorStats(game):
 	# print game.minSC
 	# print game.initSC
 	# print game.endSC
+	# print game.shiftSC
 	# print game.timestampMaxSC
 	# print game.timestampMinSC
 	# print game.diffSC
@@ -199,6 +201,7 @@ class Game(object):
 		self.diffHR = 0
 		self.initHR = 0
 		self.endHR = 0
+		self.shiftHR = 0
 		self.timestampMaxHR = 0
 		self.timestampMinHR = 0
 		self.diffTimestampHR = 0
@@ -208,6 +211,7 @@ class Game(object):
 		self.diffSC = 0
 		self.initSC = 0
 		self.endSC = 0
+		self.shiftSC = 0
 		self.timestampMaxSC = 0
 		self.timestampMinSC = 0
 		self.diffTimestampSC = 0
@@ -866,6 +870,7 @@ if len(sys.argv)>1:
 		parseXML(g)
 		# createCSV(g)
 		calculateStats(g)
+		# print g.sumDilInfosRead
 
 	d1 = "Sensor-Data"
  	for f1 in os.listdir(d1):
@@ -882,49 +887,51 @@ if len(sys.argv)>1:
  					# print gameid
  					filepath = os.path.join(d3,f3)
 
+ 					found = False
  					for game in gamesArray:
  					# game = gamesArray[2]
-							if gameid == game.gameid:
-								# print game.gamestartUTC
-								# print game.gameendUTC
-								# print "======================"
-								# print "found game " + gameid
-								with open(filepath, 'rb') as csvfile:
-							   		reader = csv.reader(csvfile, delimiter='\t', quotechar='|')
-							   		i = 0
-							   		sc = []
-							   		hr = []
-							   		timestamps = []
-							   		rawHR = []
-							   		for row in reader:
-							   			if i>2:
-							   				rawHR.append(float(row[4]))
-							   				sc.append(round(float(row[2]),2))
-							   				hr.append(round(float(row[6]),2))
-							   				timestamps.append(float(row[0])/1000) # no millis
-							   				# print row[0]
-							   				i+=1
-							   			else: 
-							   				i+=1
-							   	# plt.plot(sc)
-							   	# plt.axis([0, i, 0, 20])
-							   	# plt.show()
-							   	game.scSignal = sc
-							   	game.hrSignal = hr
-							   	game.timestamps = timestamps
-							   	game.rawHR = rawHR
-							   	# getSensorStats(game)
-							   	# print game.version
-							   	hrvcalc.run(game)
-							   	# print "++++++++++++++++++++"
-							   	# plt.plot(bpms)
-							   	# plt.plot(game.hrInGame)
-							   	# plt.show()
-
+						if gameid == game.gameid:
+							found = True
+							# print game.gamestartUTC
+							# print game.gameendUTC
+							# print "======================"
+							# print "found game " + gameid
+							with open(filepath, 'rb') as csvfile:
+						   		reader = csv.reader(csvfile, delimiter='\t', quotechar='|')
+						   		i = 0
+						   		sc = []
+						   		hr = []
+						   		timestamps = []
+						   		rawHR = []
+						   		for row in reader:
+						   			if i>2:
+						   				rawHR.append(float(row[4]))
+						   				sc.append(round(float(row[2]),2))
+						   				hr.append(round(float(row[6]),2))
+						   				timestamps.append(float(row[0])/1000) # no millis
+						   				# print row[0]
+						   				i+=1
+						   			else: 
+						   				i+=1
+						   	# plt.plot(sc)
+						   	# plt.axis([0, i, 0, 20])
+						   	# plt.show()
+						   	game.scSignal = sc
+						   	game.hrSignal = hr
+						   	game.timestamps = timestamps
+						   	game.rawHR = rawHR
+						   	# getSensorStats(game)
+						   	# print game.version
+						   	hrvcalc.run(game)
+						   	# print "++++++++++++++++++++"
+						   	# plt.plot(bpms)
+						   	# plt.plot(game.hrInGame)
+						   	# plt.show()
 							   	# print game.avgHR, ",", game.version
 						   	# print game.maxHR, " - ",  game.minHR ," - ", game.avgHR ," - ", game.stdHR ," - ", game.timestampMaxHR ," - ", game.timestampMinHR ," - ", game.diffTimestampHR ," - ", game.diffHR ," - ", game.hrv ," - ", game.version
 						   	# print game.maxHR, " - ",  game.minSC ," - ", game.avgSC ," - ", game.stdSC ," - ", game.timestampMaxSC ," - ", game.timestampMinSC ," - ", game.diffTimestampSC ," - ", game.diffSC ," - ", game.version
-
+					if not found:
+						print "game not found ", gameid
 	maxHR0, minHR0, avgHR0, stdHR0, timestampMaxHR0, timestampMinHR0, diffTimestampHR0, diffHR0, maxSC0, minSC0, avgSC0, stdSC0, timestampMaxSC0, timestampMinSC0, diffTimestampSC0, diffSC0, hrv0 = [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
 	maxHR1, minHR1, avgHR1, stdHR1, timestampMaxHR1, timestampMinHR1, diffTimestampHR1, diffHR1, maxSC1, minSC1, avgSC1, stdSC1, timestampMaxSC1, timestampMinSC1, diffTimestampSC1, diffSC1, hrv1 = [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
 	
@@ -932,8 +939,11 @@ if len(sys.argv)>1:
 
 
 	for k,v in enumerate(gamesArray): #clean up false data (user not reading anything/no sensor data)
-		if v.maxHR == 0  or v.sumDilInfosRead == 0: 
+		print ' :::::::::::::::::::::   ', v.avgHR
+		print ' :::::::::::::::::::::   ', v.sumDilInfosRead
+		if v.avgHR == 0  or v.sumDilInfosRead <2 : #0 or 1 infos read lol
 			gamesArray.pop(k)
+			print "popped game ", v.gameid
 
 
 	print "number of games: ", len(gamesArray)

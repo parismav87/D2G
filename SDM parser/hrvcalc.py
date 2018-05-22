@@ -44,14 +44,14 @@ def getIntervals(peakList):
 	intervals = []
 	for k,v in enumerate(peakList):
 		if k < len(peakList)-1:
-			interval = peakList[k+1] - v  #interval is already in ms, sampling freq is 1000
+			interval = peakList[k+1] - v  
 			dist = (interval* 1000 / 1024) 
 			intervals.append(dist)			
 	intervals.append(((peakList[len(peakList)-1] - peakList[len(peakList)-2])*1000/1024)) #last element
 	return intervals
 
 
-def getBpm(intervals, peakList):
+def getBpm(intervals, peakList, game):
 	bpms = []
 	start = 0
 	for k,v in enumerate(intervals):
@@ -59,6 +59,9 @@ def getBpm(intervals, peakList):
 			for i in range(start, peakList[k]):
 				bpms.append(60000/v) #transform to beats per sec
 			start = peakList[k]+1
+	lastBpm = bpms[len(bpms)-1]
+	for q in range(len(bpms), len(game.rawHRInGame)):
+		bpms.append(lastBpm)
 	return bpms
 
 def getIntervalDiffs(intervals):
@@ -161,6 +164,7 @@ def getHRStats(game, bpms):
 	game.minHR = minHR - game.avgHR
 	game.initHR = initHR - game.avgHR
 	game.endHR = endHR - game.avgHR
+	game.shiftHR = game.endHR - game.initHR
 	game.timestampMaxHR = float(timestampMaxHR)/len(game.timestamps)
 	game.timestampMinHR = float(timestampMinHR)/len(game.timestamps)
 	game.diffHR = maxHR - minHR
@@ -172,6 +176,7 @@ def getHRStats(game, bpms):
 	print game.minHR
 	print game.initHR
 	print game.endHR
+	print game.shiftHR
 	print game.timestampMaxHR
 	print game.timestampMinHR
 	print game.diffHR
@@ -192,7 +197,8 @@ def run(game):
 
 	filteredHR = getButterWorth(buff, 1.5 , 2)
 
-	augList = [-40, -30, -20, -10, -5, -1, 1, 5, 10, 15, 20, 25, 30, 40, 50]
+	augList = [-10, -5, -1, 1, 5, 10, 15, 20, 25, 30, 40, 50]
+	# augList = [1]
 	statsDict = {}
 	# filteredHR = rawHR
 	for k, aug in enumerate(augList):
@@ -203,7 +209,8 @@ def run(game):
 		rrsd = np.std(intervals)
 		sqdiffs = getIntervalSqdiffs(intervals)
 		rmssd = getRmssd(sqdiffs)
-		bpms = getBpm(intervals, peakList)
+		bpms = getBpm(intervals, peakList, game)
+		
 		# game.hrv = rmssd
 		temp = {
 			'rrsd' : rrsd,
@@ -211,11 +218,11 @@ def run(game):
 			'hrv' : rmssd
 		}
 		statsDict[str(k)] = temp
-		print "......"
-		print aug
-		print rrsd
-		print np.mean(bpms)
-		print "......"
+		# print "......"
+		# print aug
+		# print rrsd
+		# print np.mean(bpms)
+		# print "......"
 
 	minrrsd = 99999
 	minBpms = []
@@ -229,17 +236,21 @@ def run(game):
 
 	getHRStats(game,minBpms)
 	getSCStats(game)
+	# print "..............."
+	# print len(game.rawHRInGame)
+	# print len(game.hrInGame)
+	# print "..............."
 
 	# print "HRV: ", rmssd
 	# print "avg BPM: ", np.mean(bpms)
 	# plt.ion()
-	if game.hrv>190:
-		# plt.plot(buff)
-		plt.plot(filteredHR)
-		plt.plot(mov_avg)
-		plt.scatter(peakList, ybeat, color="red")
-		# plt.plot(bpms)
-		plt.show()
+	# if game.hrv>200:
+	# 	# plt.plot(buff)
+	# 	plt.plot(filteredHR)
+	# 	# plt.plot(mov_avg)
+	# 	plt.scatter(peakList, ybeat, color="red")
+	# 	plt.plot(bpms)
+	# 	plt.show()
 	
 	# print len(filteredHR)
 	# print len(bpms)
