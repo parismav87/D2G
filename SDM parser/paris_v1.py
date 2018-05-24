@@ -229,6 +229,12 @@ class Game(object):
 			self.version = 1
 		# print self.version
 
+	def toCSV(self):
+		return (self.gameid+","+self.maxHR+","+self.minHR+","+self.initHR+","+str(self.endHR)+","+str(self.shiftHR)+","+str(self.timestampMaxHR)
+			+","+str(self.timestampMinHR)+","+str(self.diffHR)+","+self.diffTimestampHR+","+str(self.avgHR)+","+str(self.stdHR)+","+str(self.hrv)
+			+","+str(self.maxSC)+","+str(self.minSC)+","+str(self.initSC)+","+str(self.endSC)+","+str(self.shiftSC)+","+str(self.timestampMaxSC)
+			+","+str(self.timestampMinSC)+","+str(self.diffSC)+","+str(self.diffTimestampSC)+","+str(self.avgSC)+","+str(self.stdSC))
+
 class OpenDilemma(object):
 	def __init__(self, time, gameTime, dilemmaId):
 		self.time = time
@@ -723,6 +729,17 @@ def parseVoteAdvice(game):
 				v = VoteAdvice(gameid,dilemmaid,voteadvicetime,vote)
 				game.voteadviceArray.append(v)
 
+
+def createStatsCSV(gamesArray):
+	foldername = "output/sensorStats"
+	if not os.path.exists(foldername): 
+		os.makedirs(foldername)
+	f = open(foldername+"/sensorStats.csv", "w+")
+	f.write("gameid,maxHR,minHR,initHR,endHR,shiftHR,timestampMaxHR,timestampMinHR,diffHR,diffTimestampHR,avgHR,stdHR,hrv,maxSC,minSC,initSC,endSC,shiftSC,timestampMaxSC,timestampMinSC,diffSC,diffTimestampSC,avgSC,stdSC"+"\n")
+	for g in gamesArray:
+		f.write(g.toCSV().strip()+"\n")
+
+
 def createCSV(game):
 
 	sdmmeta = root.find('sdmmeta')
@@ -938,9 +955,9 @@ if len(sys.argv)>1:
 
 
 
+
+
 	for k,v in enumerate(gamesArray): #clean up false data (user not reading anything/no sensor data)
-		print ' :::::::::::::::::::::   ', v.avgHR
-		print ' :::::::::::::::::::::   ', v.sumDilInfosRead
 		if v.avgHR == 0  or v.sumDilInfosRead <2 : #0 or 1 infos read lol
 			gamesArray.pop(k)
 			print "popped game ", v.gameid
@@ -950,7 +967,7 @@ if len(sys.argv)>1:
 	getStats()
 
 
-
+	createStatsCSV(gamesArray)
 
 	# for game in gamesArray: 
 	# 	if game.sensorData == []:

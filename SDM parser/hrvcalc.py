@@ -171,20 +171,20 @@ def getHRStats(game, bpms):
 	game.diffTimestampHR = math.fabs(game.timestampMaxHR - game.timestampMinHR)
 	
 
-	print "---------------------"
-	print game.maxHR
-	print game.minHR
-	print game.initHR
-	print game.endHR
-	print game.shiftHR
-	print game.timestampMaxHR
-	print game.timestampMinHR
-	print game.diffHR
-	print game.diffTimestampHR
-	print game.avgHR
-	print game.stdHR
-	print game.hrv
-	print "---------------------"
+	# print "---------------------"
+	# print game.maxHR
+	# print game.minHR
+	# print game.initHR
+	# print game.endHR
+	# print game.shiftHR
+	# print game.timestampMaxHR
+	# print game.timestampMinHR
+	# print game.diffHR
+	# print game.diffTimestampHR
+	# print game.avgHR
+	# print game.stdHR
+	# print game.hrv
+	# print "---------------------"
 
 def run(game):
 	rawHR = game.rawHR
@@ -197,7 +197,7 @@ def run(game):
 
 	filteredHR = getButterWorth(buff, 1.5 , 2)
 
-	augList = [-10, -5, -1, 1, 5, 10, 15, 20, 25, 30, 40, 50]
+	augList = [-50, -40, -30, -20, -10, -5, -1, 1, 5, 10, 15, 20, 25, 30, 40, 50]
 	# augList = [1]
 	statsDict = {}
 	# filteredHR = rawHR
@@ -215,7 +215,10 @@ def run(game):
 		temp = {
 			'rrsd' : rrsd,
 			'bpms' : bpms,
-			'hrv' : rmssd
+			'hrv' : rmssd,
+			'movAvg': mov_avg,
+			'peakList' : peakList,
+			'ybeat': ybeat
 		}
 		statsDict[str(k)] = temp
 		# print "......"
@@ -226,11 +229,17 @@ def run(game):
 
 	minrrsd = 99999
 	minBpms = []
+	minMovAvg = []
+	minPeakList = []
+	minYbeat = []
 	for d in statsDict:
 		if not math.isnan(np.mean(statsDict[d]['bpms'])) and statsDict[d]['rrsd']<minrrsd:
 			minrrsd = statsDict[d]['rrsd']
 			minBpms = statsDict[d]['bpms']
 			game.hrv = statsDict[d]['hrv']
+			minMovAvg = statsDict[d]['movAvg']
+			minPeakList = statsDict[d]['peakList']
+			minYbeat = statsDict[d]['ybeat']
 
 	
 
@@ -245,12 +254,18 @@ def run(game):
 	# print "avg BPM: ", np.mean(bpms)
 	# plt.ion()
 	# if game.hrv>200:
-	# 	# plt.plot(buff)
+	# 	plt.plot(buff)
 	# 	plt.plot(filteredHR)
-	# 	# plt.plot(mov_avg)
-	# 	plt.scatter(peakList, ybeat, color="red")
-	# 	plt.plot(bpms)
+	# 	plt.plot(minMovAvg)
+	# 	plt.scatter(minPeakList, minYbeat, color="red")
+	# 	# plt.plot(bpms)
 	# 	plt.show()
 	
 	# print len(filteredHR)
 	# print len(bpms)
+
+
+
+	foldername = "output/perGameStats"
+	if not os.path.exists(foldername): 
+		os.makedirs(foldername)
