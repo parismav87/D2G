@@ -59,9 +59,10 @@ def getBpm(intervals, peakList, game):
 			for i in range(start, peakList[k]):
 				bpms.append(60000/v) #transform to beats per sec
 			start = peakList[k]+1
-	lastBpm = bpms[len(bpms)-1]
-	for q in range(len(bpms), len(game.rawHRInGame)):
-		bpms.append(lastBpm)
+	if len(bpms)>0:
+		lastBpm = bpms[len(bpms)-1]
+		for q in range(len(bpms), len(game.rawHRInGame)):
+			bpms.append(lastBpm)
 	return bpms
 
 def getIntervalDiffs(intervals):
@@ -187,11 +188,12 @@ def getHRStats(game, bpms):
 	# print "---------------------"
 
 def run(game):
+	print game.gameid
 	rawHR = game.rawHR
 	getInGameHR(game)
 	buff = []
 	for r in game.rawHRInGame:
-		buff.append(math.pow(r,3))
+		buff.append(math.pow(r,3)) #buffing the signal to make peaks more obvious
 
 
 
@@ -265,7 +267,3 @@ def run(game):
 	# print len(bpms)
 
 
-
-	foldername = "output/perGameStats"
-	if not os.path.exists(foldername): 
-		os.makedirs(foldername)
