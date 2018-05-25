@@ -230,8 +230,8 @@ class Game(object):
 		# print self.version
 
 	def toCSV(self):
-		return (self.gameid+","+self.maxHR+","+self.minHR+","+self.initHR+","+str(self.endHR)+","+str(self.shiftHR)+","+str(self.timestampMaxHR)
-			+","+str(self.timestampMinHR)+","+str(self.diffHR)+","+self.diffTimestampHR+","+str(self.avgHR)+","+str(self.stdHR)+","+str(self.hrv)
+		return (str(self.gameid)+","+str(self.maxHR)+","+str(self.minHR)+","+str(self.initHR)+","+str(self.endHR)+","+str(self.shiftHR)+","+str(self.timestampMaxHR)
+			+","+str(self.timestampMinHR)+","+str(self.diffHR)+","+str(self.diffTimestampHR)+","+str(self.avgHR)+","+str(self.stdHR)+","+str(self.hrv)
 			+","+str(self.maxSC)+","+str(self.minSC)+","+str(self.initSC)+","+str(self.endSC)+","+str(self.shiftSC)+","+str(self.timestampMaxSC)
 			+","+str(self.timestampMinSC)+","+str(self.diffSC)+","+str(self.diffTimestampSC)+","+str(self.avgSC)+","+str(self.stdSC))
 

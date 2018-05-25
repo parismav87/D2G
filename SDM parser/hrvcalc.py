@@ -188,7 +188,7 @@ def getHRStats(game, bpms):
 	# print "---------------------"
 
 def run(game):
-	print game.gameid
+	# print game.gameid
 	rawHR = game.rawHR
 	getInGameHR(game)
 	buff = []
@@ -199,7 +199,7 @@ def run(game):
 
 	filteredHR = getButterWorth(buff, 1.5 , 2)
 
-	augList = [-50, -40, -30, -20, -10, -5, -1, 1, 5, 10, 15, 20, 25, 30, 40, 50]
+	augList = [-5, -1, 1, 5, 10, 15, 20, 25, 30, 40, 50]
 	# augList = [1]
 	statsDict = {}
 	# filteredHR = rawHR
@@ -235,7 +235,7 @@ def run(game):
 	minPeakList = []
 	minYbeat = []
 	for d in statsDict:
-		if not math.isnan(np.mean(statsDict[d]['bpms'])) and statsDict[d]['rrsd']<minrrsd:
+		if not math.isnan(np.mean(statsDict[d]['bpms'])) and statsDict[d]['rrsd']<minrrsd and statsDict[d]['rrsd']>0:
 			minrrsd = statsDict[d]['rrsd']
 			minBpms = statsDict[d]['bpms']
 			game.hrv = statsDict[d]['hrv']
@@ -255,7 +255,8 @@ def run(game):
 	# print "HRV: ", rmssd
 	# print "avg BPM: ", np.mean(bpms)
 	# plt.ion()
-	# if game.hrv>200:
+	# if game.gameid == "223EG3AF7":
+	# 	print game.gameid
 	# 	plt.plot(buff)
 	# 	plt.plot(filteredHR)
 	# 	plt.plot(minMovAvg)
