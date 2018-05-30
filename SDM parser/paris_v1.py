@@ -190,6 +190,7 @@ class Game(object):
 		self.hrSignal = []
 		self.timestamps = []
 		self.scInGame = []
+		self.scInGameFiltered = []
 		self.hrInGame = []
 		self.rawHR = []
 		self.rawHRInGame = []
@@ -449,6 +450,9 @@ def getStats():
 			timestampMinHR0.append(g.timestampMinHR)
 			diffTimestampHR0.append(g.diffTimestampHR)
 			diffHR0.append(g.diffHR)
+			initHR0.append(g.initHR)
+			endHR0.append(g.endHR)
+			shiftHR0.append(g.shiftHR)
 			maxSC0.append(g.maxSC)
 			minSC0.append(g.minSC)
 			avgSC0.append(g.avgSC)
@@ -457,6 +461,9 @@ def getStats():
 			timestampMinSC0.append(g.timestampMinSC)
 			diffTimestampSC0.append(g.diffTimestampSC)
 			diffSC0.append(g.diffSC)
+			initSC0.append(g.initSC)
+			endSC0.append(g.endSC)
+			shiftSC0.append(g.shiftSC)
 			hrv0.append(g.hrv)
 		else:
 			maxHR1.append(g.maxHR)
@@ -467,6 +474,9 @@ def getStats():
 			timestampMinHR1.append(g.timestampMinHR)
 			diffTimestampHR1.append(g.diffTimestampHR)
 			diffHR1.append(g.diffHR)
+			initHR1.append(g.initHR)
+			endHR1.append(g.endHR)
+			shiftHR1.append(g.shiftHR)
 			maxSC1.append(g.maxSC)
 			minSC1.append(g.minSC)
 			avgSC1.append(g.avgSC)
@@ -475,6 +485,9 @@ def getStats():
 			timestampMinSC1.append(g.timestampMinSC)
 			diffTimestampSC1.append(g.diffTimestampSC)
 			diffSC1.append(g.diffSC)
+			initSC1.append(g.initSC)
+			endSC1.append(g.endSC)
+			shiftSC1.append(g.shiftSC)
 			hrv1.append(g.hrv)
 
 
@@ -487,7 +500,10 @@ def getStats():
 	print "timestampMaxHR ---->", stats.ttest_ind(timestampMaxHR0, timestampMaxHR1) 
 	print "timestampMinHR ---->", stats.ttest_ind(timestampMinHR0, timestampMinHR1) 
 	print "diffTimestampHR ---->", stats.ttest_ind(diffTimestampHR0, diffTimestampHR1) 
-	print "diffHR1 ---->", stats.ttest_ind(diffHR0, diffHR1) 
+	print "diffHR ---->", stats.ttest_ind(diffHR0, diffHR1) 
+	print "initHR ---->", stats.ttest_ind(initHR0, initHR1) 
+	print "endHR ---->", stats.ttest_ind(endHR0, endHR1) 
+	print "shiftHR ---->", stats.ttest_ind(shiftHR0, shiftHR1) 
 	print "maxSC ---->", stats.ttest_ind(maxSC0, maxSC1) 
 	print "minSC ---->", stats.ttest_ind(minSC0, minSC1) 
 	print "avgSC ---->", stats.ttest_ind(avgSC0, avgSC1) 
@@ -496,6 +512,9 @@ def getStats():
 	print "timestampMinSC ---->", stats.ttest_ind(timestampMinSC0, timestampMinSC1) 
 	print "diffTimestampSC ---->", stats.ttest_ind(diffTimestampSC0, diffTimestampSC1) 
 	print "diffSC ---->", stats.ttest_ind(diffSC0, diffSC1) 
+	print "initSC ---->", stats.ttest_ind(initSC0, initSC1) 
+	print "endSC ---->", stats.ttest_ind(endSC0, endSC1) 
+	print "shiftSC ---->", stats.ttest_ind(shiftSC0, shiftSC1) 
 	print "hrv ---->", stats.ttest_ind(hrv0, hrv1) 
 
 	avgMaxHR0 = np.average(maxHR0)
@@ -906,7 +925,7 @@ if len(sys.argv)>1:
 
  					found = False
  					for game in gamesArray:
- 					# game = gamesArray[2]
+ 					# game = gamesArray[0]
 						if gameid == game.gameid:
 							found = True
 							# print game.gamestartUTC
@@ -949,8 +968,8 @@ if len(sys.argv)>1:
 						   	# print game.maxHR, " - ",  game.minSC ," - ", game.avgSC ," - ", game.stdSC ," - ", game.timestampMaxSC ," - ", game.timestampMinSC ," - ", game.diffTimestampSC ," - ", game.diffSC ," - ", game.version
 					if not found:
 						print "game not found ", gameid
-	maxHR0, minHR0, avgHR0, stdHR0, timestampMaxHR0, timestampMinHR0, diffTimestampHR0, diffHR0, maxSC0, minSC0, avgSC0, stdSC0, timestampMaxSC0, timestampMinSC0, diffTimestampSC0, diffSC0, hrv0 = [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
-	maxHR1, minHR1, avgHR1, stdHR1, timestampMaxHR1, timestampMinHR1, diffTimestampHR1, diffHR1, maxSC1, minSC1, avgSC1, stdSC1, timestampMaxSC1, timestampMinSC1, diffTimestampSC1, diffSC1, hrv1 = [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
+	maxHR0, minHR0, avgHR0, stdHR0, timestampMaxHR0, timestampMinHR0, diffTimestampHR0, diffHR0, initHR0, endHR0, shiftHR0, maxSC0, minSC0, avgSC0, stdSC0, timestampMaxSC0, timestampMinSC0, diffTimestampSC0, diffSC0, initSC0, endSC0, shiftSC0, hrv0 = [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
+	maxHR1, minHR1, avgHR1, stdHR1, timestampMaxHR1, timestampMinHR1, diffTimestampHR1, diffHR1, initHR1, endHR1, shiftHR1, maxSC1, minSC1, avgSC1, stdSC1, timestampMaxSC1, timestampMinSC1, diffTimestampSC1, diffSC1, initSC1, endSC1, shiftSC1, hrv1 = [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
 	
 
 
@@ -958,9 +977,10 @@ if len(sys.argv)>1:
 
 
 	for k,v in enumerate(gamesArray): #clean up false data (user not reading anything/no sensor data)
-		if v.avgHR == 0  or v.sumDilInfosRead <2 : #0 or 1 infos read lol
+		if v.avgHR == 0  or v.sumDilInfosRead <2 or v.hrv>100: #0 or 1 infos read lol
 			gamesArray.pop(k)
 			print "popped game ", v.gameid
+			print v.hrv
 
 
 	print "number of games: ", len(gamesArray)

@@ -3,6 +3,7 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+import scipy
 from scipy import signal
 
 def getMovAvg(dataList, window, aug):
@@ -102,7 +103,13 @@ def getSCStats(game):
 	timestampMaxSC = 0
 	timestampMinSC = 0
 
-	for i,v in enumerate(game.scSignal):
+	filt = signal.medfilt(game.scSignal, 513)
+	filt2 = scipy.ndimage.filters.convolve(filt, np.full((2048), 1.0/2048))
+	game.scSignalFiltered = filt2
+
+
+
+	for i,v in enumerate(game.scSignalFiltered):
 		if game.timestamps[i] >= game.gamestartUTC and game.timestamps[i] <= game.gameendUTC and v>0: #filter out <0 values
 			game.scInGame.append(v) # add hr value to ingame HR
 			if not firstMeasurement:
@@ -116,7 +123,7 @@ def getSCStats(game):
 				timestampMinSC = i
 		elif game.timestamps[i]> game.gameendUTC and not lastMeasurement:
 			lastMeasurement = True
-			game.endSC = game.scSignal[i-1]
+			game.endSC = game.scSignalFiltered[i-1]
 
 	game.avgSC = np.average(game.scInGame)
 	game.stdSC = np.std(game.scInGame)
@@ -128,9 +135,11 @@ def getSCStats(game):
 	game.minSC = minSC - game.avgSC
 	game.timestampMaxSC = float(timestampMaxSC)/len(game.timestamps)
 	game.timestampMinSC = float(timestampMinSC)/len(game.timestamps)
+	game.initSC = game.initSC - game.avgSC
+	game.endSC = game.endSC - game.avgSC
 	game.diffSC = maxSC - minSC
 	game.diffTimestampSC = math.fabs(game.timestampMaxSC - game.timestampMinSC)
-
+	game.shiftSC = game.initSC - game.endSC
 
 def getHRStats(game, bpms):
 
@@ -199,7 +208,7 @@ def run(game):
 
 	filteredHR = getButterWorth(buff, 1.5 , 2)
 
-	augList = [-5, -1, 1, 5, 10, 15, 20, 25, 30, 40, 50]
+	augList = [-20, -10, -5, -1, 1, 5, 10, 15, 20, 25, 30, 40, 50]
 	# augList = [1]
 	statsDict = {}
 	# filteredHR = rawHR
@@ -252,16 +261,19 @@ def run(game):
 	# print len(game.hrInGame)
 	# print "..............."
 
-	# print "HRV: ", rmssd
+	# print "HRV: ", game.hrv
+	# print "version:  ", game.version
 	# print "avg BPM: ", np.mean(bpms)
 	# plt.ion()
-	# if game.gameid == "223EG3AF7":
+	# if game.hrv > 0:
 	# 	print game.gameid
-	# 	plt.plot(buff)
-	# 	plt.plot(filteredHR)
-	# 	plt.plot(minMovAvg)
-	# 	plt.scatter(minPeakList, minYbeat, color="red")
-	# 	# plt.plot(bpms)
+	# 	plt.plot(game.scInGame, label="Filtered SC Signal")
+	# 	# plt.plot(buff, label='Raw HR Signal')
+	# 	# plt.plot(filteredHR, label='Filtered HR Signal')
+	# 	# plt.plot(minMovAvg, label='Moving Average')
+	# 	# plt.scatter(minPeakList, minYbeat, color="red", label='Detected Peak')
+	# 	# # plt.plot(bpms)
+	# 	plt.legend()
 	# 	plt.show()
 	
 	# print len(filteredHR)
