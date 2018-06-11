@@ -23,7 +23,9 @@ def getGameId(root):
 
 def getUTCTime(timeString):
 	#print(timeString)
-	dateTime = dt.strptime(timeString, "%Y-%m-%dT%H:%M:%S")
+	if "." not in timeString:
+		timeString += ".000"
+	dateTime = dt.strptime(timeString, "%Y-%m-%dT%H:%M:%S.%f")
 	# dateTime.replace(tzinfo=pytz.utc)
 	# print dateTime.tzinfo
 	# dateTime.astimezone(pytz.timezone('Europe/Amsterdam'))
@@ -189,12 +191,15 @@ class Game(object):
 		self.scSignal = []
 		self.hrSignal = []
 		self.timestamps = []
+		self.inGameTimestamps = []
 		self.scInGame = []
 		self.scInGameFiltered = []
 		self.hrInGame = []
 		self.rawHR = []
 		self.rawHRInGame = []
 		self.hrBaseline = []
+		self.firstDiffHR = []
+		self.firstDiffSC = []
 		self.avgHR = 0
 		self.stdHR = 0
 		self.minHR = 0
@@ -283,13 +288,17 @@ class Dilemma(object):
 		self.numberAskedInfos = 0
 		self.sumAdvisorMood = 0
 		self.game = game
+		self.initTime = 0
+		self.endTime = 0
+		self.initIndex = 0
+		self.endIndex = 0
 
 	def setTimeToAnswer(self):
 		for rd in self.game.rootDilemmasArray:
 			if rd.dilemmaId == self.dilemmaId:
 				for da in self.game.answerDilemmaArray:
 					if da.dilemmaId == self.dilemmaId:
-						self.timeToAnswer = int(da.gameTime) - int(rd.displayTime)
+						self.timeToAnswer = int(getUTCTime(da.time)) - int(self.initTime)
 
 	def setTimesOpened(self):
 		for od in self.game.openDilemmaArray:
@@ -329,7 +338,42 @@ class Dilemma(object):
 		for c in self.game.characterArray:
 			self.sumAdvisorMood += int(c.advMood)
 
+	def setDilemmaTimes(self):
+		arr = []
+		for o in self.game.openDilemmaArray:
+			if o.dilemmaId == self.dilemmaId:
+				arr.append(getUTCTime(o.time))
+		arr.sort()
+		self.initTime = arr[0]
+		
+		arr2 = []
+		for q in self.game.answerDilemmaArray:
+			if q.dilemmaId == self.dilemmaId:
+				self.endTime = getUTCTime(q.time)
+
+		found1 = False
+		found2 = False
+		# print len(self.game.timestamps)
+		for k,v in enumerate(self.game.inGameTimestamps):
+			# print v , " -- ", self.initTime
+			if v>= self.initTime and not found1:
+				self.initIndex = k  
+				# print "FOUND ->", k
+				# print v, " ? ", self.initTime
+				found1 = True
+			if v >= self.endTime and not found2:
+				self.endIndex = k
+				# print "FOUND2 ->", k
+				found2 = True
+
+		# print self.initIndex, " == ", self.endIndex	
+
+
+		# print self.initTime , " - - " , self.endTime
+		# print self.game.gamestartUTC , " +++ ", self.game.gameendUTC
+
 	def setSecondaryMeasurements(self):
+		self.setDilemmaTimes()
 		self.setTimeToAnswer()
 		self.setTimesOpened()
 		self.setNumberInfosRead()
@@ -339,6 +383,7 @@ class Dilemma(object):
 		self.setIndirectInfos()
 		self.setNumberAskedInfos()
 		self.setSumAdvisorMood()
+		
 
 	def getCSVHeader(self):
 		return "gameId, dilemmaId,timeOpen,answerType, timeToAnswer, timesOpened, numberInfosTotal, numberInfosRead, adviceRequested, empathyFeedback, directInfos, indirectInfos"
@@ -750,7 +795,7 @@ def parseVoteAdvice(game):
 
 
 def createStatsCSV(gamesArray):
-	foldername = "output/sensorStats"
+	foldername = "output"
 	if not os.path.exists(foldername): 
 		os.makedirs(foldername)
 	f = open(foldername+"/sensorStats.csv", "w+")
@@ -770,7 +815,7 @@ def createCSV(game):
 	dilemmaFile = open(foldername+"/dilemmas.csv", "w+")
 	dilemmaFile.write(dilemmaArray[0].getCSVHeader()+"\n")
 	for dilemma in dilemmaArray:
-		dilemma.setSecondaryMeasurements()
+		# dilemma.setSecondaryMeasurements()
 		dilemmaFile.write(dilemma.toCSV().strip()+"\n")
 
 	empathyFile = open(foldername+"/empathy.csv", "w+")
@@ -809,6 +854,9 @@ def createCSV(game):
 		voteadviceFile.write(voteadvice.toCSV().strip()+"\n")
 
 
+
+
+
 def parseXML(game):
 	parseDilemmas(game)
 	parseEmpathy(game)
@@ -825,12 +873,19 @@ def parseXML(game):
 	parseRootDilemmas(game)
 	parseGameTime(game)
 
+	# for d in game.openDilemmaArray:
+	# 	print d.dilemmaId
+	# 	print d.time
+
 
 def calculateStats(game):
 
 	for dil in game.dilemmaArray:
 
 		dil.setSecondaryMeasurements()
+		# print dil.timeOpen
+		# print dil.timeToAnswer
+		# print "====="
 
 		game.dilTimeToAnswerArr.append(int(dil.timeToAnswer))
 		game.dilTimeOpenArr.append(int(dil.timeOpen))
@@ -880,13 +935,14 @@ def calculateStats(game):
 
 	sdmmeta = root.find('sdmmeta')
 	gameid = sdmmeta.find('gameid').text.strip()
-	foldername = "output/experimentout"+gameid
+	# foldername = "output/experimentout"+gameid
+	foldername = "output"
 
 	if not os.path.exists(foldername): 
 		os.makedirs(foldername)
-	statsFile = open(foldername+"/stats.csv", "w+")
-	statsFile.write("sumAdvisorMood,averageInfoOpen,stdInfoOpen,averageTimeToAnswer,stdTimeToAnswer,averageTimeDilemmaOpen,stdTimeDilemmaOpen,sumPosFeedback,sumNegFeedback,sumNeuFeedback,sumAdviceRequested,sumInfosRead,sumInfos,avgTimesDilemmaOpened,stdTimesDilemmaOpened,sumDirectInfo,sumIndirectInfo"+"\n")
-	statsFile.write(str(game.dilemmaArray[0].sumAdvisorMood)+","+str(game.avgInfoOpen)+","+str(game.stdInfoOpen)+","+str(game.avgTimeToAnswer)+","+str(game.stdTimeToAnswer)+","+str(game.avgDilTimeOpen)+","+str(game.stdDilTimeOpen)
+	statsFile = open(foldername+"/stats.csv", "a+")
+	statsFile.write("gameId,version,sumAdvisorMood,averageInfoOpen,stdInfoOpen,averageTimeToAnswer,stdTimeToAnswer,averageTimeDilemmaOpen,stdTimeDilemmaOpen,sumPosFeedback,sumNegFeedback,sumNeuFeedback,sumAdviceRequested,sumInfosRead,sumInfos,avgTimesDilemmaOpened,stdTimesDilemmaOpened,sumDirectInfo,sumIndirectInfo"+"\n")
+	statsFile.write(game.gameid+","+str(game.version)+","+str(game.dilemmaArray[0].sumAdvisorMood)+","+str(game.avgInfoOpen)+","+str(game.stdInfoOpen)+","+str(game.avgTimeToAnswer)+","+str(game.stdTimeToAnswer)+","+str(game.avgDilTimeOpen)+","+str(game.stdDilTimeOpen)
 		+","+str(game.sumDilPositiveFeedback)+","+str(game.sumDilNegativeFeedback)+","+str(game.sumDilNeutralFeedback)+","+str(game.sumDilAdviceRequested)+","+str(game.sumDilInfosRead)
 		+","+str(game.sumDilInfos)+","+str(game.avgDilTimesOpened)+","+str(game.stdDilTimesOpened)+","+str(game.sumDilDirectInfo)+","+str(game.sumDilIndirectInfo))
 
@@ -907,6 +963,9 @@ if len(sys.argv)>1:
 		# createCSV(g)
 		calculateStats(g)
 		# print g.sumDilInfosRead
+		# for dilemma in g.dilemmaArray:
+		# 	print dilemma.timeOpen
+		# print "---"
 
 	d1 = "Sensor-Data"
  	for f1 in os.listdir(d1):
@@ -958,6 +1017,7 @@ if len(sys.argv)>1:
 						   	game.rawHR = rawHR
 						   	# getSensorStats(game)
 						   	# print game.version
+						   	
 						   	hrvcalc.run(game)
 						   	# print "++++++++++++++++++++"
 						   	# plt.plot(bpms)

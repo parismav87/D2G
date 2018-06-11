@@ -94,6 +94,7 @@ def getInGameHR(game):
 	for i,v in enumerate(game.rawHR):
 		if game.timestamps[i] >= game.gamestartUTC and game.timestamps[i] <= game.gameendUTC and v>0: #filter out <=0 values
 			game.rawHRInGame.append(game.rawHR[i])
+			game.inGameTimestamps.append(game.timestamps[i])
 
 def getSCStats(game):
 	firstMeasurement = False
@@ -131,6 +132,10 @@ def getSCStats(game):
 	for s in game.scInGame:
 		s = s - game.avgSC
 
+	for i,v in enumerate(game.scInGame):
+		if i<len(game.scInGame)-2:
+			game.firstDiffSC.append(game.scInGame[i+1] - game.scInGame[i])
+
 	game.maxSC = maxSC - game.avgSC
 	game.minSC = minSC - game.avgSC
 	game.timestampMaxSC = float(timestampMaxSC)/len(game.timestamps)
@@ -140,6 +145,8 @@ def getSCStats(game):
 	game.diffSC = maxSC - minSC
 	game.diffTimestampSC = math.fabs(game.timestampMaxSC - game.timestampMinSC)
 	game.shiftSC = game.initSC - game.endSC
+
+	
 
 def getHRStats(game, bpms):
 
@@ -158,7 +165,8 @@ def getHRStats(game, bpms):
 			minHR = v
 			timestampMinHR = i
 		game.hrInGame.append(v) # add hr value to ingame HR
-		
+		if i<len(bpms)-2:
+			game.firstDiffHR.append(bpms[i+1] - bpms[i])
 
 	game.avgHR = np.average(game.hrInGame)
 	game.stdHR = np.std(game.hrInGame)
@@ -196,10 +204,35 @@ def getHRStats(game, bpms):
 	# print game.hrv
 	# print "---------------------"
 
+def plot(game):
+	if game.hrv <100:
+		# print game.gameid
+		# plt.plot(game.firstDiffHR, label="HR First Difference")
+		# plt.plot(game.firstDiffSC, label="SC First Difference")
+		# plt.plot(game.hrInGame, label="BPM")
+		plt.plot(game.scInGame, label="Skin Conductance")
+		plt.ylim(0,15)
+		# plt.plot(buff, label='Raw HR Signal')
+		# plt.plot(filteredHR, label='Filtered HR Signal')
+		# plt.plot(minMovAvg, label='Moving Average')
+		# plt.scatter(minPeakList, minYbeat, color="red", label='Detected Peak')
+		# # plt.plot(bpms)
+
+		for d in game.dilemmaArray:
+			plt.axvline(x=d.initIndex, color="g",  linestyle='--')
+			# plt.axvline(x=d.endIndex, color="c", linestyle='--')
+			plt.text(d.initIndex + 5, 10, d.dilemmaId, rotation=90, verticalalignment='center')
+			# plt.text(d.endIndex + 5, 1, d.dilemmaId, rotation=90, verticalalignment='center')
+		plt.legend()
+		plt.show()
+
+
 def run(game):
 	# print game.gameid
 	rawHR = game.rawHR
 	getInGameHR(game)
+	# for d in game.dilemmaArray:
+ #   		d.setDilemmaTimes()
 	buff = []
 	for r in game.rawHRInGame:
 		buff.append(math.pow(r,3)) #buffing the signal to make peaks more obvious
@@ -264,17 +297,15 @@ def run(game):
 	# print "HRV: ", game.hrv
 	# print "version:  ", game.version
 	# print "avg BPM: ", np.mean(bpms)
-	# plt.ion()
-	# if game.hrv > 0:
-	# 	print game.gameid
-	# 	plt.plot(game.scInGame, label="Filtered SC Signal")
-	# 	# plt.plot(buff, label='Raw HR Signal')
-	# 	# plt.plot(filteredHR, label='Filtered HR Signal')
-	# 	# plt.plot(minMovAvg, label='Moving Average')
-	# 	# plt.scatter(minPeakList, minYbeat, color="red", label='Detected Peak')
-	# 	# # plt.plot(bpms)
-	# 	plt.legend()
-	# 	plt.show()
+
+
+	# plot(game)
+
+
+
+	
+
+	
 	
 	# print len(filteredHR)
 	# print len(bpms)
