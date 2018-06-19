@@ -129,8 +129,8 @@ def getSCStats(game):
 	game.avgSC = np.average(game.scInGame)
 	game.stdSC = np.std(game.scInGame)
 
-	for s in game.scInGame:
-		s = s - game.avgSC
+	for k,v in enumerate(game.scInGame):
+		game.scBaseline.append(v - game.avgSC)
 
 	for i,v in enumerate(game.scInGame):
 		if i<len(game.scInGame)-2:
@@ -144,8 +144,12 @@ def getSCStats(game):
 	game.endSC = game.endSC - game.avgSC
 	game.diffSC = maxSC - minSC
 	game.diffTimestampSC = math.fabs(game.timestampMaxSC - game.timestampMinSC)
-	game.shiftSC = game.initSC - game.endSC
+	game.shiftSC = game.endSC - game.initSC
 
+
+	# for d in game.dilemmaArray:
+	# 	print d.dilemmaId, "  ", d.endTime
+	# print '---'
 	
 
 def getHRStats(game, bpms):
@@ -171,12 +175,10 @@ def getHRStats(game, bpms):
 	game.avgHR = np.average(game.hrInGame)
 	game.stdHR = np.std(game.hrInGame)
 
+	for k,v in enumerate(game.hrInGame):
+		game.hrBaseline.append(v - game.avgHR)
 	# plt.plot(game.hrInGame)
  #   	plt.show()
-
-	for h in game.hrInGame:
-		game.hrBaseline = h-game.avgHR
-
 
 	game.maxHR = maxHR - game.avgHR
 	game.minHR = minHR - game.avgHR
@@ -204,6 +206,99 @@ def getHRStats(game, bpms):
 	# print game.hrv
 	# print "---------------------"
 
+
+
+
+def getDilemmaStats(game):
+
+	for d in game.dilemmaArray:
+		dilemmaHR = []
+		dilemmaSC = []
+
+		for i in range(d.initIndex, d.endIndex):
+			dilemmaHR.append(game.hrInGame[i])
+			dilemmaSC.append(game.scInGame[i])
+
+		d.avgHR = np.mean(dilemmaHR)
+		d.stdHR = np.std(dilemmaHR)
+		d.minHR = np.amin(dilemmaHR) - d.avgHR
+		d.maxHR = np.amax(dilemmaHR) - d.avgHR
+		d.diffHR = d.maxHR - d.minHR
+		d.initHR = dilemmaHR[0] - d.avgHR
+		d.endHR = dilemmaHR[len(dilemmaHR)-1] - d.avgHR
+		d.shiftHR = d.endHR - d.initHR
+		d.timestampMaxHR = float(np.argmax(dilemmaHR))/len(dilemmaHR)
+		d.timestampMinHR = float(np.argmin(dilemmaHR))/len(dilemmaHR)
+		d.diffTimestampHR = d.timestampMaxHR - d.timestampMinHR
+
+		d.avgSC = np.mean(dilemmaSC)
+		d.stdSC = np.std(dilemmaSC)
+		d.minSC = np.amin(dilemmaSC) - d.avgSC
+		d.maxSC = np.amax(dilemmaSC) - d.avgSC
+		d.diffSC = d.maxSC - d.minSC
+		d.initSC = dilemmaSC[0] - d.avgSC
+		d.endSC = dilemmaSC[len(dilemmaSC)-1] - d.avgSC
+		d.shiftSC = d.endSC - d.initSC
+		d.timestampMaxSC = float(np.argmax(dilemmaSC))/len(dilemmaSC)
+		d.timestampMinSC = float(np.argmin(dilemmaSC))/len(dilemmaSC)
+		d.diffTimestampSC = d.timestampMaxSC - d.timestampMinSC
+
+
+		print d.avgHR, " avgHR "
+		print d.stdHR, " stdHR "
+		print d.minHR, " minHR "
+		print d.maxHR, " maxHR "
+		print d.diffHR, " diffHR "
+		print d.initHR, " initHR "
+		print d.endHR, " endHR "
+		print d.shiftHR, " shiftHR "
+		print d.timestampMaxHR, " timestampMaxHR "
+		print d.timestampMinHR, " timestampMinHR "
+		print d.diffTimestampHR, " diffTimestampHR "
+		
+		print d.avgSC, " avgSC "
+		print d.stdSC, " stdSC "
+		print d.minSC, " minSC "
+		print d.maxSC, " maxSC "
+		print d.diffSC, " diffSC "
+		print d.initSC, " initSC "
+		print d.endSC, " endSC "
+		print d.shiftSC, " shiftSC "
+		print d.timestampMaxSC, " timestampMaxSC "
+		print d.timestampMinSC, " timestampMinSC "
+		print d.diffTimestampSC, " diffTimestampSC "
+
+
+		print "-----"
+		
+	
+
+def detoneSC(game):
+	finished = False
+	newSC = []
+	sig = game.scInGame
+	max = len(sig)
+	for i,v in enumerate(sig):
+		# print i
+		window = []
+		# print i
+		if i-6000 <0:
+			start = 0
+		else:
+			start = i-6000
+		if i+6000>=max:
+			end = max-1
+		else:
+			end = i+6000
+		window = sig[start:end]
+		median = np.median(window)
+		newSC.append(v-median)
+
+	plt.plot(newSC)
+	plt.plot(sig)
+	plt.show()
+
+
 def plot(game):
 	if game.hrv <100:
 		# print game.gameid
@@ -211,7 +306,7 @@ def plot(game):
 		# plt.plot(game.firstDiffSC, label="SC First Difference")
 		# plt.plot(game.hrInGame, label="BPM")
 		plt.plot(game.scInGame, label="Skin Conductance")
-		plt.ylim(0,15)
+		plt.ylim(-5,10)
 		# plt.plot(buff, label='Raw HR Signal')
 		# plt.plot(filteredHR, label='Filtered HR Signal')
 		# plt.plot(minMovAvg, label='Moving Average')
@@ -227,12 +322,16 @@ def plot(game):
 		plt.show()
 
 
+
+
 def run(game):
+
 	# print game.gameid
 	rawHR = game.rawHR
 	getInGameHR(game)
-	# for d in game.dilemmaArray:
- #   		d.setDilemmaTimes()
+
+	for d in game.dilemmaArray:
+   		d.setDilemmaIndexes()
 	buff = []
 	for r in game.rawHRInGame:
 		buff.append(math.pow(r,3)) #buffing the signal to make peaks more obvious
@@ -289,6 +388,13 @@ def run(game):
 
 	getHRStats(game,minBpms)
 	getSCStats(game)
+	getDilemmaStats(game)
+
+
+
+	
+	# detoneSC(game)
+
 	# print "..............."
 	# print len(game.rawHRInGame)
 	# print len(game.hrInGame)
@@ -299,7 +405,7 @@ def run(game):
 	# print "avg BPM: ", np.mean(bpms)
 
 
-	# plot(game)
+	plot(game)
 
 
 

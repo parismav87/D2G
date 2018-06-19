@@ -12,6 +12,7 @@ import math
 from hrv.classical import time_domain
 from scipy import stats
 import hrvcalc
+from sklearn.cluster import KMeans
 
 gamesArray = []
 
@@ -81,7 +82,7 @@ def getSensorStats(game):
  #   	plt.show()
 
 	for h in game.hrInGame:
-		game.hrBaseline = h-game.avgHR
+		game.hrBaseline.append(h-game.avgHR)
 
 
 	game.maxHR = maxHR - game.avgHR
@@ -128,7 +129,7 @@ def getSensorStats(game):
 	game.stdSC = np.std(game.scInGame)
 
 	for s in game.scInGame:
-		s = s - game.avgSC
+		game.scBaseline.append(s - game.avgSC)
 
 	game.maxSC = maxSC - game.avgSC
 	game.minSC = minSC - game.avgSC
@@ -198,6 +199,7 @@ class Game(object):
 		self.rawHR = []
 		self.rawHRInGame = []
 		self.hrBaseline = []
+		self.scBaseline = []
 		self.firstDiffHR = []
 		self.firstDiffSC = []
 		self.avgHR = 0
@@ -223,7 +225,6 @@ class Game(object):
 		self.diffTimestampSC = 0
 		self.avgSC = 0
 		self.stdSC = 0
-
 
 	def getGameVersion(self, root):
 		sdmscenario = root.find('sdmscenario')
@@ -292,6 +293,29 @@ class Dilemma(object):
 		self.endTime = 0
 		self.initIndex = 0
 		self.endIndex = 0
+		self.avgHR = 0
+		self.stdHR = 0
+		self.minHR = 0
+		self.maxHR = 0
+		self.diffHR = 0
+		self.initHR = 0
+		self.endHR = 0
+		self.shiftHR = 0
+		self.timestampMaxHR = 0
+		self.timestampMinHR = 0
+		self.diffTimestampHR = 0
+		self.hrv = 0
+		self.minSC = 0
+		self.maxSC = 0
+		self.diffSC = 0
+		self.initSC = 0
+		self.endSC = 0
+		self.shiftSC = 0
+		self.timestampMaxSC = 0
+		self.timestampMinSC = 0
+		self.diffTimestampSC = 0
+		self.avgSC = 0
+		self.stdSC = 0
 
 	def setTimeToAnswer(self):
 		for rd in self.game.rootDilemmasArray:
@@ -338,6 +362,19 @@ class Dilemma(object):
 		for c in self.game.characterArray:
 			self.sumAdvisorMood += int(c.advMood)
 
+	def setDilemmaIndexes(self):
+		found1 = False
+		found2 = False
+		# print len(self.game.timestamps)
+		for k,v in enumerate(self.game.inGameTimestamps):
+			# print v , " -- ", self.initTime
+			if v>= self.initTime and not found1:
+				self.initIndex = k  
+				found1 = True
+			if v >= self.endTime and not found2:
+				self.endIndex = k
+				found2 = True
+
 	def setDilemmaTimes(self):
 		arr = []
 		for o in self.game.openDilemmaArray:
@@ -351,26 +388,6 @@ class Dilemma(object):
 			if q.dilemmaId == self.dilemmaId:
 				self.endTime = getUTCTime(q.time)
 
-		found1 = False
-		found2 = False
-		# print len(self.game.timestamps)
-		for k,v in enumerate(self.game.inGameTimestamps):
-			# print v , " -- ", self.initTime
-			if v>= self.initTime and not found1:
-				self.initIndex = k  
-				# print "FOUND ->", k
-				# print v, " ? ", self.initTime
-				found1 = True
-			if v >= self.endTime and not found2:
-				self.endIndex = k
-				# print "FOUND2 ->", k
-				found2 = True
-
-		# print self.initIndex, " == ", self.endIndex	
-
-
-		# print self.initTime , " - - " , self.endTime
-		# print self.game.gamestartUTC , " +++ ", self.game.gameendUTC
 
 	def setSecondaryMeasurements(self):
 		self.setDilemmaTimes()
@@ -878,6 +895,14 @@ def parseXML(game):
 	# 	print d.time
 
 
+def writeStatsHeader():
+	foldername = "output"
+	if not os.path.exists(foldername): 
+		os.makedirs(foldername)
+	statsFile = open(foldername+"/stats.csv", "a+")
+	statsFile.write("gameId,version,sumAdvisorMood,averageInfoOpen,stdInfoOpen,averageTimeToAnswer,stdTimeToAnswer,averageTimeDilemmaOpen,stdTimeDilemmaOpen,sumPosFeedback,sumNegFeedback,sumNeuFeedback,sumAdviceRequested,sumInfosRead,sumInfos,avgTimesDilemmaOpened,stdTimesDilemmaOpened,sumDirectInfo,sumIndirectInfo"+"\n")
+
+
 def calculateStats(game):
 
 	for dil in game.dilemmaArray:
@@ -941,20 +966,28 @@ def calculateStats(game):
 	if not os.path.exists(foldername): 
 		os.makedirs(foldername)
 	statsFile = open(foldername+"/stats.csv", "a+")
-	statsFile.write("gameId,version,sumAdvisorMood,averageInfoOpen,stdInfoOpen,averageTimeToAnswer,stdTimeToAnswer,averageTimeDilemmaOpen,stdTimeDilemmaOpen,sumPosFeedback,sumNegFeedback,sumNeuFeedback,sumAdviceRequested,sumInfosRead,sumInfos,avgTimesDilemmaOpened,stdTimesDilemmaOpened,sumDirectInfo,sumIndirectInfo"+"\n")
 	statsFile.write(game.gameid+","+str(game.version)+","+str(game.dilemmaArray[0].sumAdvisorMood)+","+str(game.avgInfoOpen)+","+str(game.stdInfoOpen)+","+str(game.avgTimeToAnswer)+","+str(game.stdTimeToAnswer)+","+str(game.avgDilTimeOpen)+","+str(game.stdDilTimeOpen)
 		+","+str(game.sumDilPositiveFeedback)+","+str(game.sumDilNegativeFeedback)+","+str(game.sumDilNeutralFeedback)+","+str(game.sumDilAdviceRequested)+","+str(game.sumDilInfosRead)
-		+","+str(game.sumDilInfos)+","+str(game.avgDilTimesOpened)+","+str(game.stdDilTimesOpened)+","+str(game.sumDilDirectInfo)+","+str(game.sumDilIndirectInfo))
+		+","+str(game.sumDilInfos)+","+str(game.avgDilTimesOpened)+","+str(game.stdDilTimesOpened)+","+str(game.sumDilDirectInfo)+","+str(game.sumDilIndirectInfo)+"\n")
 
 
 
+def clustering(arr1, arr2, label1, label2):
+	X = np.vstack((arr1, arr2)).T
+	# print X
+	kmeans = KMeans(n_clusters=2, random_state=0).fit_predict(X, y=None)
+	plt.scatter(X[:,0], X[:,1], c=kmeans)
+	plt.xlabel(label1)
+	plt.ylabel(label2)	
+	plt.show()
 
 #-------   MAIN   -----------------	
 if len(sys.argv)>1: 
 	filePath = sys.argv[1]
 	games = ET.parse(filePath).getroot().iter('sdmgame')
+	writeStatsHeader()
 
-	for root in games : 		
+	for root in games :
 		gameid = getGameId(root)
 		g = Game(gameid)
 		gamesArray.append(g)
@@ -966,6 +999,8 @@ if len(sys.argv)>1:
 		# for dilemma in g.dilemmaArray:
 		# 	print dilemma.timeOpen
 		# print "---"
+	# clustering(gamesArray)
+
 
 	d1 = "Sensor-Data"
  	for f1 in os.listdir(d1):
@@ -1019,13 +1054,6 @@ if len(sys.argv)>1:
 						   	# print game.version
 						   	
 						   	hrvcalc.run(game)
-						   	# print "++++++++++++++++++++"
-						   	# plt.plot(bpms)
-						   	# plt.plot(game.hrInGame)
-						   	# plt.show()
-							   	# print game.avgHR, ",", game.version
-						   	# print game.maxHR, " - ",  game.minHR ," - ", game.avgHR ," - ", game.stdHR ," - ", game.timestampMaxHR ," - ", game.timestampMinHR ," - ", game.diffTimestampHR ," - ", game.diffHR ," - ", game.hrv ," - ", game.version
-						   	# print game.maxHR, " - ",  game.minSC ," - ", game.avgSC ," - ", game.stdSC ," - ", game.timestampMaxSC ," - ", game.timestampMinSC ," - ", game.diffTimestampSC ," - ", game.diffSC ," - ", game.version
 					if not found:
 						print "game not found ", gameid
 	maxHR0, minHR0, avgHR0, stdHR0, timestampMaxHR0, timestampMinHR0, diffTimestampHR0, diffHR0, initHR0, endHR0, shiftHR0, maxSC0, minSC0, avgSC0, stdSC0, timestampMaxSC0, timestampMinSC0, diffTimestampSC0, diffSC0, initSC0, endSC0, shiftSC0, hrv0 = [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
@@ -1048,6 +1076,13 @@ if len(sys.argv)>1:
 
 
 	createStatsCSV(gamesArray)
+
+	# arr1 = []
+	# arr2 = []
+	# for g in gamesArray:
+	# 	arr1.append(g.avgSC)
+	# 	arr2.append(g.maxSC)
+	# clustering(arr1, arr2, "average SC", "")
 
 	# for game in gamesArray: 
 	# 	if game.sensorData == []:
