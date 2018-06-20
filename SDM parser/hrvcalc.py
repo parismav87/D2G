@@ -1,5 +1,6 @@
 import csv
-
+import sys
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 import math
@@ -143,7 +144,7 @@ def getSCStats(game):
 	game.initSC = game.initSC - game.avgSC
 	game.endSC = game.endSC - game.avgSC
 	game.diffSC = maxSC - minSC
-	game.diffTimestampSC = math.fabs(game.timestampMaxSC - game.timestampMinSC)
+	game.diffTimestampSC = game.timestampMaxSC - game.timestampMinSC
 	game.shiftSC = game.endSC - game.initSC
 
 
@@ -188,7 +189,8 @@ def getHRStats(game, bpms):
 	game.timestampMaxHR = float(timestampMaxHR)/len(game.timestamps)
 	game.timestampMinHR = float(timestampMinHR)/len(game.timestamps)
 	game.diffHR = maxHR - minHR
-	game.diffTimestampHR = math.fabs(game.timestampMaxHR - game.timestampMinHR)
+	game.diffTimestampHR = game.timestampMaxHR - game.timestampMinHR
+
 	
 
 	# print "---------------------"
@@ -209,15 +211,24 @@ def getHRStats(game, bpms):
 
 
 
+
 def getDilemmaStats(game):
+
+	foldername = "output"+"/"+game.gameid
+	if not os.path.exists(foldername): 
+		os.makedirs(foldername)
+	dilemmaFile = open(foldername + "/stats.csv", "a+")
+	dilemmaFile.write(game.dilemmaArray[0].getCSVHeader()+"\n")
 
 	for d in game.dilemmaArray:
 		dilemmaHR = []
 		dilemmaSC = []
+		rawSignal = []
 
 		for i in range(d.initIndex, d.endIndex):
 			dilemmaHR.append(game.hrInGame[i])
 			dilemmaSC.append(game.scInGame[i])
+			rawSignal.append(game.rawHRInGame[i])
 
 		d.avgHR = np.mean(dilemmaHR)
 		d.stdHR = np.std(dilemmaHR)
@@ -244,33 +255,62 @@ def getDilemmaStats(game):
 		d.diffTimestampSC = d.timestampMaxSC - d.timestampMinSC
 
 
-		print d.avgHR, " avgHR "
-		print d.stdHR, " stdHR "
-		print d.minHR, " minHR "
-		print d.maxHR, " maxHR "
-		print d.diffHR, " diffHR "
-		print d.initHR, " initHR "
-		print d.endHR, " endHR "
-		print d.shiftHR, " shiftHR "
-		print d.timestampMaxHR, " timestampMaxHR "
-		print d.timestampMinHR, " timestampMinHR "
-		print d.diffTimestampHR, " diffTimestampHR "
-		
-		print d.avgSC, " avgSC "
-		print d.stdSC, " stdSC "
-		print d.minSC, " minSC "
-		print d.maxSC, " maxSC "
-		print d.diffSC, " diffSC "
-		print d.initSC, " initSC "
-		print d.endSC, " endSC "
-		print d.shiftSC, " shiftSC "
-		print d.timestampMaxSC, " timestampMaxSC "
-		print d.timestampMinSC, " timestampMinSC "
-		print d.diffTimestampSC, " diffTimestampSC "
 
+		buff = []
+		for r in rawSignal:
+			buff.append(math.pow(r,3)) #buffing the signal to make peaks more obvious
 
-		print "-----"
+		filteredHR = getButterWorth(buff, 1.5 , 2)
+
+		augList = [-20, -10, -5, -1, 1, 5, 10, 15, 20, 25, 30, 40, 50]
+		# augList = [1]
+		statsDict = {}
+		# filteredHR = rawHR
+		for k, aug in enumerate(augList):
+			mov_avg = getMovAvg(filteredHR, 768, aug) #0.75*1024
+			peakList = getPeakDetection(filteredHR, mov_avg)
+			ybeat = [filteredHR[x] for x in peakList]
+			intervals = getIntervals(peakList)
+			rrsd = np.std(intervals)
+			sqdiffs = getIntervalSqdiffs(intervals)
+			rmssd = getRmssd(sqdiffs)
+			bpms = getBpm(intervals, peakList, game)
+			
+			# game.hrv = rmssd
+			temp = {
+				'rrsd' : rrsd,
+				'bpms' : bpms,
+				'hrv' : rmssd,
+				'movAvg': mov_avg,
+				'peakList' : peakList,
+				'ybeat': ybeat
+			}
+			statsDict[str(k)] = temp
+			# print "......"
+			# print aug
+			# print rrsd
+			# print np.mean(bpms)
+			# print "......"
+
+		minrrsd = 99999
+		minBpms = []
+		minMovAvg = []
+		minPeakList = []
+		minYbeat = []
+		hrv = 99999
+		for sd in statsDict:
+			if not math.isnan(np.mean(statsDict[sd]['bpms'])) and statsDict[sd]['rrsd']<minrrsd and statsDict[sd]['rrsd']>0:
+				minrrsd = statsDict[sd]['rrsd']
+				minBpms = statsDict[sd]['bpms']
+				hrv = statsDict[sd]['hrv']
+				minMovAvg = statsDict[sd]['movAvg']
+				minPeakList = statsDict[sd]['peakList']
+				minYbeat = statsDict[sd]['ybeat']
 		
+		d.hrv = hrv
+		
+		dilemmaFile.write(d.toCSV().strip()+"\n")
+
 	
 
 def detoneSC(game):
@@ -332,6 +372,7 @@ def run(game):
 
 	for d in game.dilemmaArray:
    		d.setDilemmaIndexes()
+
 	buff = []
 	for r in game.rawHRInGame:
 		buff.append(math.pow(r,3)) #buffing the signal to make peaks more obvious
@@ -389,6 +430,8 @@ def run(game):
 	getHRStats(game,minBpms)
 	getSCStats(game)
 	getDilemmaStats(game)
+
+
 
 
 

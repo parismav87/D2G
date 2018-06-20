@@ -403,12 +403,16 @@ class Dilemma(object):
 		
 
 	def getCSVHeader(self):
-		return "gameId, dilemmaId,timeOpen,answerType, timeToAnswer, timesOpened, numberInfosTotal, numberInfosRead, adviceRequested, empathyFeedback, directInfos, indirectInfos"
+		return "gameId, dilemmaId, initIndex, timeOpen,answerType, timeToAnswer, timesOpened, numberInfosTotal, numberInfosRead, adviceRequested, empathyFeedback, directInfos, indirectInfos, avgHR, stdHR, minHR, maxHR, diffHR, initHR, endHR, shiftHR, timestampMaxHR, timestampMinHR, diffTimestampHR, hrv, avgSC, stdSC, minSC, maxSC, diffSC, initSC, endSC, shiftSC, timestampMaxSC, timestampMinSC, diffTimestampSC"
 
 	def toCSV(self):
-		return (self.gameId+","+self.dilemmaId+","+self.timeOpen+","+self.answerType+","+str(self.timeToAnswer)+","+str(self.timesOpened)+","+str(self.numberInfosTotal)
-			+","+str(self.numberInfosRead)+","+str(self.adviceRequested)+","+self.empathyFeedback+","+str(self.directInfos)+","+str(self.indirectInfos))
-#+","+str(self.numberAskedInfos)+","+str(self.sumAdvisorMood)
+		return (str(self.gameId)+","+str(self.dilemmaId)+","+str(self.initIndex)+","+str(self.timeOpen)+","+str(self.answerType)+","+str(self.timeToAnswer)+","+str(self.timesOpened)+","+str(self.numberInfosTotal)
+			+","+str(self.numberInfosRead)+","+str(self.adviceRequested)+","+self.empathyFeedback+","+str(self.directInfos)+","+str(self.indirectInfos)+","+str(self.numberAskedInfos)+","+str(self.sumAdvisorMood)+","+str(self.avgHR)+","+str(self.stdHR)+","+str(self.minHR)+","+str(self.maxHR)+","+str(self.diffHR)
+			+","+str(self.initHR)+","+str(self.endHR)+","+str(self.shiftHR)+","+str(self.timestampMaxHR)+","+str(self.timestampMinHR)+","+str(self.diffTimestampHR)+","+str(self.hrv)
+			+","+str(self.avgSC)+","+str(self.stdSC)+","+str(self.minSC)+","+str(self.maxSC)+","+str(self.diffSC)+","+str(self.sumAdvisorMood)+","+str(self.initSC)+","+str(self.endSC)
+			+","+str(self.shiftSC)+","+str(self.timestampMaxSC)+","+str(self.timestampMinSC)+","+str(self.diffTimestampSC))
+
+
 class Empathy(object):
 	def __init__(self, gameId, dilemmaId, empathyGroup, mood):
 		self.gameId = gameId
