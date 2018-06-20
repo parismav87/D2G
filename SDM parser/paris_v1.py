@@ -159,6 +159,7 @@ class Game(object):
 	def __init__(self, gameid):
 		self.gamestartUTC = 0
 		self.gameendUTC = 0
+		self.gameDuration = 0
 		self.dilemmaArray = []
 		self.empathyArray = []
 		self.characterArray = []
@@ -322,7 +323,9 @@ class Dilemma(object):
 			if rd.dilemmaId == self.dilemmaId:
 				for da in self.game.answerDilemmaArray:
 					if da.dilemmaId == self.dilemmaId:
-						self.timeToAnswer = int(getUTCTime(da.time)) - int(self.initTime)
+						self.timeToAnswer = (int(getUTCTime(da.time)) - int(self.initTime)) / self.game.gameDuration
+						print self.timeToAnswer
+						print "-----"
 
 	def setTimesOpened(self):
 		for od in self.game.openDilemmaArray:
@@ -381,13 +384,12 @@ class Dilemma(object):
 			if o.dilemmaId == self.dilemmaId:
 				arr.append(getUTCTime(o.time))
 		arr.sort()
-		self.initTime = arr[0]
+		self.initTime = arr[0] 
 		
 		arr2 = []
 		for q in self.game.answerDilemmaArray:
 			if q.dilemmaId == self.dilemmaId:
 				self.endTime = getUTCTime(q.time)
-
 
 	def setSecondaryMeasurements(self):
 		self.setDilemmaTimes()
@@ -649,6 +651,9 @@ def parseGameTime(game):
 		gameend = sdmmeta.find('gameend').text.strip()
 		gameendUTC = getUTCTime(gameend)
 		game.gameendUTC = gameendUTC
+
+		game.gameDuration = (gameendUTC - gamestartUTC) 
+		print game.gameDuration
 
 def parseDilemmas(game):
 	for sdmfeedback in root.iter('sdmfeedback'):
