@@ -324,8 +324,8 @@ class Dilemma(object):
 				for da in self.game.answerDilemmaArray:
 					if da.dilemmaId == self.dilemmaId:
 						self.timeToAnswer = (int(getUTCTime(da.time)) - int(self.initTime)) / self.game.gameDuration
-						print self.timeToAnswer
-						print "-----"
+						# print self.timeToAnswer
+						# print "-----"
 
 	def setTimesOpened(self):
 		for od in self.game.openDilemmaArray:
@@ -377,6 +377,8 @@ class Dilemma(object):
 			if v >= self.endTime and not found2:
 				self.endIndex = k
 				found2 = True
+		if not found2:
+			self.endIndex = len(self.game.inGameTimestamps)-1
 
 	def setDilemmaTimes(self):
 		arr = []
@@ -405,13 +407,13 @@ class Dilemma(object):
 		
 
 	def getCSVHeader(self):
-		return "gameId, dilemmaId, initIndex, timeOpen,answerType, timeToAnswer, timesOpened, numberInfosTotal, numberInfosRead, adviceRequested, empathyFeedback, directInfos, indirectInfos, avgHR, stdHR, minHR, maxHR, diffHR, initHR, endHR, shiftHR, timestampMaxHR, timestampMinHR, diffTimestampHR, hrv, avgSC, stdSC, minSC, maxSC, diffSC, initSC, endSC, shiftSC, timestampMaxSC, timestampMinSC, diffTimestampSC"
+		return "gameId, dilemmaId, initIndex, timeOpen,answerType, timeToAnswer, timesOpened, numberInfosTotal, numberInfosRead, adviceRequested, empathyFeedback, directInfos, indirectInfos, numberAskedInfos, sumAdvisorMood, avgHR, stdHR, minHR, maxHR, diffHR, initHR, endHR, shiftHR, timestampMaxHR, timestampMinHR, diffTimestampHR, hrv, avgSC, stdSC, minSC, maxSC, diffSC, initSC, endSC, shiftSC, timestampMaxSC, timestampMinSC, diffTimestampSC"
 
 	def toCSV(self):
-		return (str(self.gameId)+","+str(self.dilemmaId)+","+str(self.initIndex)+","+str(self.timeOpen)+","+str(self.answerType)+","+str(self.timeToAnswer)+","+str(self.timesOpened)+","+str(self.numberInfosTotal)
+		return (str(self.gameId)+","+str(self.dilemmaId)+","+str(self.initIndex)+","+str(float(self.timeOpen) / self.game.gameDuration)+","+str(self.answerType)+","+str(self.timeToAnswer)+","+str(self.timesOpened)+","+str(self.numberInfosTotal)
 			+","+str(self.numberInfosRead)+","+str(self.adviceRequested)+","+self.empathyFeedback+","+str(self.directInfos)+","+str(self.indirectInfos)+","+str(self.numberAskedInfos)+","+str(self.sumAdvisorMood)+","+str(self.avgHR)+","+str(self.stdHR)+","+str(self.minHR)+","+str(self.maxHR)+","+str(self.diffHR)
 			+","+str(self.initHR)+","+str(self.endHR)+","+str(self.shiftHR)+","+str(self.timestampMaxHR)+","+str(self.timestampMinHR)+","+str(self.diffTimestampHR)+","+str(self.hrv)
-			+","+str(self.avgSC)+","+str(self.stdSC)+","+str(self.minSC)+","+str(self.maxSC)+","+str(self.diffSC)+","+str(self.sumAdvisorMood)+","+str(self.initSC)+","+str(self.endSC)
+			+","+str(self.avgSC)+","+str(self.stdSC)+","+str(self.minSC)+","+str(self.maxSC)+","+str(self.diffSC)+","+str(self.initSC)+","+str(self.endSC)
 			+","+str(self.shiftSC)+","+str(self.timestampMaxSC)+","+str(self.timestampMinSC)+","+str(self.diffTimestampSC))
 
 
@@ -589,6 +591,9 @@ def getStats():
 	avgMinHR0 = np.average(minHR0)
 	avgAvgHR0 = np.average(avgHR0)
 	avgStdHR0 = np.average(stdHR0)
+	avgInitHR0 = np.average(initHR0)
+	avgEndHR0 = np.average(endHR0)
+	avgShiftHR0 = np.average(shiftHR0)
 	avgTimestampMaxHR0 = np.average(timestampMaxHR0)
 	avgTimestampMinHR0 = np.average(timestampMinHR0)
 	avgDiffTimestampHR0 = np.average(diffTimestampHR0)
@@ -597,6 +602,9 @@ def getStats():
 	avgMinSC0 = np.average(minSC0)
 	avgAvgSC0 = np.average(avgSC0)
 	avgStdSC0 = np.average(stdSC0)
+	avgInitSC0 = np.average(initSC0)
+	avgEndSC0 = np.average(endSC0)
+	avgShiftSC0 = np.average(shiftSC0)
 	avgTimestampMaxSC0 = np.average(timestampMaxSC0)
 	avgTimestampMinSC0 = np.average(timestampMinSC0)
 	avgDiffTimestampSC0 = np.average(diffTimestampSC0)
@@ -607,6 +615,9 @@ def getStats():
 	avgMinHR1 = np.average(minHR1)
 	avgAvgHR1 = np.average(avgHR1)
 	avgStdHR1 = np.average(stdHR1)
+	avgInitHR1 = np.average(initHR1)
+	avgEndHR1 = np.average(endHR1)
+	avgShiftHR1 = np.average(shiftHR1)
 	avgTimestampMaxHR1 = np.average(timestampMaxHR1)
 	avgTimestampMinHR1 = np.average(timestampMinHR1)
 	avgDiffTimestampHR1 = np.average(diffTimestampHR1)
@@ -615,6 +626,9 @@ def getStats():
 	avgMinSC1 = np.average(minSC1)
 	avgAvgSC1 = np.average(avgSC1)
 	avgStdSC1 = np.average(stdSC1)
+	avgInitSC1 = np.average(initSC1)
+	avgEndSC1 = np.average(endSC1)
+	avgShiftSC1 = np.average(shiftSC1)
 	avgTimestampMaxSC1 = np.average(timestampMaxSC1)
 	avgTimestampMinSC1 = np.average(timestampMinSC1)
 	avgDiffTimestampSC1 = np.average(diffTimestampSC1)
@@ -626,6 +640,9 @@ def getStats():
 	print avgMinHR0, " -- ", avgMinHR1, " avg min hr"
 	print avgAvgHR0, " -- ", avgAvgHR1, " avg avg hr"
 	print avgStdHR0, " -- ", avgStdHR1, " avg std hr"
+	print avgInitHR0, " -- ", avgInitHR1, " avg init hr"
+	print avgEndHR0, " -- ", avgEndHR1, " avg end hr"
+	print avgShiftHR0, " -- ", avgShiftHR1, " avg shift hr"
 	print avgTimestampMaxHR0, " -- ", avgTimestampMaxHR1, " avg timestamp max hr"
 	print avgTimestampMinHR0, " -- ", avgTimestampMinHR1, " avg timestamp min hr"
 	print avgDiffTimestampHR0, " -- ", avgDiffTimestampHR1, " avg diff timestamp hr"
@@ -635,6 +652,9 @@ def getStats():
 	print avgMinSC0, " -- ", avgMinSC1, " avg min sc"
 	print avgAvgSC0, " -- ", avgAvgSC1, " avg avg sc"
 	print avgStdSC0, " -- ", avgStdSC1, " avg std sc"
+	print avgInitSC0, " -- ", avgInitSC1, " avg init sc"
+	print avgEndSC0, " -- ", avgEndSC1, " avg end sc"
+	print avgShiftSC0, " -- ", avgShiftSC1, " avg shift sc"
 	print avgTimestampMaxSC0, " -- ", avgTimestampMaxSC1, " avg timestamp max sc"
 	print avgTimestampMinSC0, " -- ", avgTimestampMinSC1, " avg timastamp min sc"
 	print avgDiffTimestampSC0, " -- ", avgDiffTimestampSC1, " avg diff timestamp sc"
@@ -653,7 +673,7 @@ def parseGameTime(game):
 		game.gameendUTC = gameendUTC
 
 		game.gameDuration = (gameendUTC - gamestartUTC) 
-		print game.gameDuration
+		# print game.gameDuration
 
 def parseDilemmas(game):
 	for sdmfeedback in root.iter('sdmfeedback'):
@@ -909,7 +929,7 @@ def writeStatsHeader():
 	if not os.path.exists(foldername): 
 		os.makedirs(foldername)
 	statsFile = open(foldername+"/stats.csv", "a+")
-	statsFile.write("gameId,version,sumAdvisorMood,averageInfoOpen,stdInfoOpen,averageTimeToAnswer,stdTimeToAnswer,averageTimeDilemmaOpen,stdTimeDilemmaOpen,sumPosFeedback,sumNegFeedback,sumNeuFeedback,sumAdviceRequested,sumInfosRead,sumInfos,avgTimesDilemmaOpened,stdTimesDilemmaOpened,sumDirectInfo,sumIndirectInfo"+"\n")
+	statsFile.write("gameId,version,sumAdvisorMood,averageInfoOpen,stdInfoOpen,averageTimeToAnswerDilemma,stdTimeToAnswerDilemma,averageTimeDilemmaOpen,stdTimeDilemmaOpen,sumPosFeedback,sumNegFeedback,sumNeuFeedback,sumAdviceRequested,sumInfosRead,sumInfos,avgTimesDilemmaOpened,stdTimesDilemmaOpened,sumDirectInfo,sumIndirectInfo"+"\n")
 
 
 def calculateStats(game):
@@ -921,8 +941,8 @@ def calculateStats(game):
 		# print dil.timeToAnswer
 		# print "====="
 
-		game.dilTimeToAnswerArr.append(int(dil.timeToAnswer))
-		game.dilTimeOpenArr.append(int(dil.timeOpen))
+		game.dilTimeToAnswerArr.append(float(dil.timeToAnswer))
+		game.dilTimeOpenArr.append(float(dil.timeOpen) / game.gameDuration)
 		game.dilTimesOpenedArr.append(int(dil.timesOpened))
 
 		game.avgTimeToAnswer = np.average(game.dilTimeToAnswerArr)
@@ -955,15 +975,16 @@ def calculateStats(game):
 		if i == len(game.openInfoArray)-1:
 			for d in game.answerDilemmaArray:
 				if d.dilemmaId == game.openInfoArray[i].dilemmaId:
-					game.infoTimeOpenArr.append(int(d.gameTime) - int(game.openInfoArray[i].gameTime) + temp)
+					game.infoTimeOpenArr.append( (int(d.gameTime) - int(game.openInfoArray[i].gameTime) + temp) / game.gameDuration) 
 		else:
 			if game.openInfoArray[i+1].dilemmaId == game.openInfoArray[i].dilemmaId: #same dilemma id
-				temp += int(game.openInfoArray[i+1].gameTime) - int(game.openInfoArray[i].gameTime)
+				temp += (int(game.openInfoArray[i+1].gameTime) - int(game.openInfoArray[i].gameTime)) / game.gameDuration
 			else: #find dilemma answer time 
 				for d in game.answerDilemmaArray:
 					if d.dilemmaId == game.openInfoArray[i].dilemmaId:
-						game.infoTimeOpenArr.append(int(d.gameTime) - int(game.openInfoArray[i].gameTime)+temp)
+						game.infoTimeOpenArr.append((int(d.gameTime) - int(game.openInfoArray[i].gameTime)+temp)/ game.gameDuration)
 						temp = 0
+	# print game.infoTimeOpenArr
 	game.avgInfoOpen = np.average(game.infoTimeOpenArr)
 	game.stdInfoOpen = np.std(game.infoTimeOpenArr)
 
@@ -1028,7 +1049,6 @@ if len(sys.argv)>1:
 
  					found = False
  					for game in gamesArray:
- 					# game = gamesArray[0]
 						if gameid == game.gameid:
 							found = True
 							# print game.gamestartUTC
@@ -1074,7 +1094,7 @@ if len(sys.argv)>1:
 
 
 	for k,v in enumerate(gamesArray): #clean up false data (user not reading anything/no sensor data)
-		if v.avgHR == 0  or v.sumDilInfosRead <2 or v.hrv>100: #0 or 1 infos read lol
+		if v.avgHR == 0  or v.sumDilInfosRead <2 or v.hrv>150: #0 or 1 infos read lol
 			gamesArray.pop(k)
 			print "popped game ", v.gameid
 			print v.hrv

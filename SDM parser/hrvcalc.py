@@ -113,7 +113,7 @@ def getSCStats(game):
 
 	for i,v in enumerate(game.scSignalFiltered):
 		if game.timestamps[i] >= game.gamestartUTC and game.timestamps[i] <= game.gameendUTC and v>0: #filter out <0 values
-			game.scInGame.append(v) # add hr value to ingame HR
+			game.scInGame.append(v) 
 			if not firstMeasurement:
 				firstMeasurement = True
 				game.initSC = v
@@ -219,8 +219,11 @@ def getDilemmaStats(game):
 		os.makedirs(foldername)
 	dilemmaFile = open(foldername + "/stats.csv", "a+")
 	dilemmaFile.write(game.dilemmaArray[0].getCSVHeader()+"\n")
+	hrvs = []
 
+	print game.gameid, "  ", len(game.hrInGame), "  ", len(game.scInGame)
 	for d in game.dilemmaArray:
+		print d.initIndex," - ", d.endIndex
 		dilemmaHR = []
 		dilemmaSC = []
 		rawSignal = []
@@ -229,7 +232,7 @@ def getDilemmaStats(game):
 			dilemmaHR.append(game.hrInGame[i])
 			dilemmaSC.append(game.scInGame[i])
 			rawSignal.append(game.rawHRInGame[i])
-
+		
 		d.avgHR = np.mean(dilemmaHR)
 		d.stdHR = np.std(dilemmaHR)
 		d.minHR = np.amin(dilemmaHR) - d.avgHR
@@ -308,10 +311,12 @@ def getDilemmaStats(game):
 				minYbeat = statsDict[sd]['ybeat']
 		
 		d.hrv = hrv
+		hrvs.append(hrv)
 		
 		dilemmaFile.write(d.toCSV().strip()+"\n")
 
-	
+	game.hrv = np.mean(hrvs)
+	# print game.hrv, " -- ", avghrv
 
 def detoneSC(game):
 	finished = False
@@ -448,7 +453,7 @@ def run(game):
 	# print "avg BPM: ", np.mean(bpms)
 
 
-	plot(game)
+	# plot(game)
 
 
 
