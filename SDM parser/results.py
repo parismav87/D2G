@@ -4,6 +4,10 @@ import sys
 import os
 from sklearn.cluster import MeanShift, KMeans, SpectralClustering
 import numpy as np
+from sklearn.manifold import TSNE
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_val_score
 
 
 def clustering(arr1, arr2, label1, label2):
@@ -110,6 +114,15 @@ class Game:
 		self.dilemmaArray = []
 
 
+	def toArray(self):
+		result = []
+		result.extend([self.avgHR, self.stdHR, self.minHR,	self.maxHR, self.diffHR, self.initHR, self.endHR, self.shiftHR, self.timestampMaxHR, self.timestampMinHR, self.diffTimestampHR, 
+		self.hrv, self.minSC, self.maxSC, self.diffSC, self.initSC, self.endSC, self.shiftSC, self.timestampMaxSC, self.timestampMinSC, self.diffTimestampSC,
+		self.avgSC, self.stdSC, self.sumAdvisorMood, self.averageInfoOpen, self.stdInfoOpen, self.averageTimeToAnswerDilemma, self.stdTimeToAnswerDilemma,
+		self.averageTimeDilemmaOpen, self.stdTimeDilemmaOpen, self.sumPosFeedback, self.sumNegFeedback, self.sumNeuFeedback, self.sumAdviceRequested, self.sumInfosRead,
+		self.sumInfos, self.avgTimesDilemmaOpened, self.stdTimesDilemmaOpened, self.sumDirectInfo, self.sumIndirectInfo])
+		return result
+
 
 games = []
 arr1 = []
@@ -210,9 +223,141 @@ for f2 in listdirs:
 							game.dilemmaArray.append(d)
 
 
-for k in games:
-	# print k.diffSC
-	arr1.append(k.timestampMaxSC)
-	arr2.append(k.shiftSC)
 
-clustering(arr1, arr2, "timestamp max sc", "average time to answer dilemma")
+
+
+avgHR = []
+stdHR = []
+minHR = []
+maxHR = []
+diffHR = []
+initHR = []
+endHR = []
+shiftHR = []
+timestampMaxHR = []
+timestampMinHR = []
+diffTimestampHR = []
+hrv = []
+avgSC = []
+stdSC = []
+minSC = []
+maxSC = []
+diffSC =[]
+initSC = []
+endSC = []
+shiftSC = []
+timestampMaxSC = []
+timestampMinSC = []
+diffTimestampSC = []
+version = []
+sumAdvisorMood = []
+averageInfoOpen = []
+stdInfoOpen = []
+averageTimeToAnswerDilemma = []
+stdTimeToAnswerDilemma = []
+averageTimeDilemmaOpen = []
+stdTimeDilemmaOpen = []
+sumPosFeedback = []
+sumNegFeedback = []
+sumNeuFeedback = []
+sumAdviceRequested = []
+sumInfosRead = []
+sumInfos = []
+avgTimesDilemmaOpened = []
+stdTimesDilemmaOpened = []
+sumDirectInfo = []
+sumIndirectInfo = []
+
+
+
+for g in games:
+	avgHR.append(g.avgHR)
+	stdHR.append(g.avgHR)
+	minHR.append(g.avgHR)
+	maxHR.append(g.avgHR)
+	diffHR.append(g.avgHR)
+	initHR.append(g.avgHR)
+	endHR.append(g.avgHR)
+	shiftHR.append(g.avgHR)
+	timestampMaxHR.append(g.avgHR)
+	timestampMinHR.append(g.avgHR)
+	diffTimestampHR.append(g.avgHR)
+	hrv.append(g.avgHR)
+	avgSC.append(g.avgHR)
+	stdSC.append(g.avgHR)
+	minSC.append(g.avgHR)
+	maxSC.append(g.avgHR)
+	diffSC.append(g.avgHR)
+	initSC.append(g.avgHR)
+	endSC.append(g.avgHR)
+	shiftSC.append(g.avgHR)
+	timestampMaxSC.append(g.avgHR)
+	timestampMinSC.append(g.avgHR)
+	diffTimestampSC.append(g.avgHR)
+	version.append(g.version)
+	sumAdvisorMood.append(g.avgHR)
+	averageInfoOpen.append(g.avgHR)
+	stdInfoOpen.append(g.avgHR)
+	averageTimeToAnswerDilemma.append(g.avgHR)
+	stdTimeToAnswerDilemma.append(g.avgHR)
+	averageTimeDilemmaOpen.append(g.avgHR)
+	stdTimeDilemmaOpen.append(g.avgHR)
+	sumPosFeedback.append(g.avgHR)
+	sumNegFeedback.append(g.avgHR)
+	sumNeuFeedback.append(g.avgHR)
+	sumAdviceRequested.append(g.avgHR)
+	sumInfosRead.append(g.avgHR)
+	sumInfos.append(g.sumInfos)
+	avgTimesDilemmaOpened.append(g.avgTimesDilemmaOpened)
+	stdTimesDilemmaOpened.append(stdTimesDilemmaOpened)
+	sumDirectInfo.append(sumDirectInfo)
+	sumIndirectInfo.append(sumIndirectInfo)
+
+
+for k,v in enumerate(games):
+	if v.avgHR == 0:
+		games.pop(k)
+
+versions = np.zeros((len(games),1))
+X = np.zeros((len(games),len(games[0].toArray())))
+
+for k,v in enumerate(games):
+	X[k,:] = v.toArray()
+	versions[k,0] = v.version
+
+XScaled = np.zeros((len(games),len(games[0].toArray())))
+scaler = MinMaxScaler()
+
+for k,v in enumerate(X.T):
+	newarr = scaler.fit_transform(v.reshape(-1,1))
+	XScaled[:,k] = newarr[:,0]
+
+
+clf = RandomForestClassifier()
+labels = []
+for v in versions[:,0]:
+	if v == 0:
+		labels.append('0')
+	else:
+		labels.append('1')
+
+
+scores = cross_val_score(clf, X, labels, cv=10)
+print scores
+print np.mean(scores)
+
+
+# testset = X[62:73,:]
+# testlabels = versions[62:73,:]
+
+
+
+
+
+# print XScaled
+# print versions[:,0]
+
+# Y = TSNE(n_components=2, n_iter=2000).fit_transform(XScaled)
+# plt.scatter(Y[:, 0], Y[:, 1], c=versions[:,0])
+# plt.show()
+
