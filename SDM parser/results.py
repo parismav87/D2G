@@ -8,7 +8,8 @@ from sklearn.manifold import TSNE
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
-
+from sklearn.decomposition import PCA
+from sklearn import svm
 
 def clustering(arr1, arr2, label1, label2):
 	X = np.vstack((arr1, arr2)).T
@@ -222,142 +223,180 @@ for f2 in listdirs:
 							d.diffTimestampSC = v[36]
 							game.dilemmaArray.append(d)
 
+def getVersions(games):
+	versions = np.zeros((len(games),1))
+	for k,v in enumerate(games):
+		versions[k,0] = v.version
+	return versions
 
+def getInstances(games):
+	X = np.zeros((len(games),len(games[0].toArray())))
+	for k,v in enumerate(games):
+		X[k,:] = v.toArray()
+	return X
 
+def scale(instances, games):
+	XScaled = np.zeros((len(games),len(games[0].toArray())))
+	scaler = MinMaxScaler()
+	for k,v in enumerate(instances.T):
+		newarr = scaler.fit_transform(v.reshape(-1,1))
+		XScaled[:,k] = newarr[:,0]
+	return XScaled
 
+def getLabels(versions):
+	labels = []
+	for v in versions[:,0]:
+		if v == 0:
+			labels.append('0')
+		else:
+			labels.append('1')
+	return labels
 
-avgHR = []
-stdHR = []
-minHR = []
-maxHR = []
-diffHR = []
-initHR = []
-endHR = []
-shiftHR = []
-timestampMaxHR = []
-timestampMinHR = []
-diffTimestampHR = []
-hrv = []
-avgSC = []
-stdSC = []
-minSC = []
-maxSC = []
-diffSC =[]
-initSC = []
-endSC = []
-shiftSC = []
-timestampMaxSC = []
-timestampMinSC = []
-diffTimestampSC = []
-version = []
-sumAdvisorMood = []
-averageInfoOpen = []
-stdInfoOpen = []
-averageTimeToAnswerDilemma = []
-stdTimeToAnswerDilemma = []
-averageTimeDilemmaOpen = []
-stdTimeDilemmaOpen = []
-sumPosFeedback = []
-sumNegFeedback = []
-sumNeuFeedback = []
-sumAdviceRequested = []
-sumInfosRead = []
-sumInfos = []
-avgTimesDilemmaOpened = []
-stdTimesDilemmaOpened = []
-sumDirectInfo = []
-sumIndirectInfo = []
-
-
-
-for g in games:
-	avgHR.append(g.avgHR)
-	stdHR.append(g.avgHR)
-	minHR.append(g.avgHR)
-	maxHR.append(g.avgHR)
-	diffHR.append(g.avgHR)
-	initHR.append(g.avgHR)
-	endHR.append(g.avgHR)
-	shiftHR.append(g.avgHR)
-	timestampMaxHR.append(g.avgHR)
-	timestampMinHR.append(g.avgHR)
-	diffTimestampHR.append(g.avgHR)
-	hrv.append(g.avgHR)
-	avgSC.append(g.avgHR)
-	stdSC.append(g.avgHR)
-	minSC.append(g.avgHR)
-	maxSC.append(g.avgHR)
-	diffSC.append(g.avgHR)
-	initSC.append(g.avgHR)
-	endSC.append(g.avgHR)
-	shiftSC.append(g.avgHR)
-	timestampMaxSC.append(g.avgHR)
-	timestampMinSC.append(g.avgHR)
-	diffTimestampSC.append(g.avgHR)
-	version.append(g.version)
-	sumAdvisorMood.append(g.avgHR)
-	averageInfoOpen.append(g.avgHR)
-	stdInfoOpen.append(g.avgHR)
-	averageTimeToAnswerDilemma.append(g.avgHR)
-	stdTimeToAnswerDilemma.append(g.avgHR)
-	averageTimeDilemmaOpen.append(g.avgHR)
-	stdTimeDilemmaOpen.append(g.avgHR)
-	sumPosFeedback.append(g.avgHR)
-	sumNegFeedback.append(g.avgHR)
-	sumNeuFeedback.append(g.avgHR)
-	sumAdviceRequested.append(g.avgHR)
-	sumInfosRead.append(g.avgHR)
-	sumInfos.append(g.sumInfos)
-	avgTimesDilemmaOpened.append(g.avgTimesDilemmaOpened)
-	stdTimesDilemmaOpened.append(stdTimesDilemmaOpened)
-	sumDirectInfo.append(sumDirectInfo)
-	sumIndirectInfo.append(sumIndirectInfo)
-
+def divideGames(games):
+	g0 = []
+	g1 = []
+	for g in games:
+		if g.version == 1:
+			g1.append(g)
+		else:
+			g0.append(g)
+	return g0,g1
 
 for k,v in enumerate(games):
 	if v.avgHR == 0:
 		games.pop(k)
 
-versions = np.zeros((len(games),1))
-X = np.zeros((len(games),len(games[0].toArray())))
 
-for k,v in enumerate(games):
-	X[k,:] = v.toArray()
-	versions[k,0] = v.version
+X = getInstances(games)
+XScaled = scale(X, games)
+versions = getVersions(games)
+labels = getLabels(versions)
+print X
 
-XScaled = np.zeros((len(games),len(games[0].toArray())))
-scaler = MinMaxScaler()
-
-for k,v in enumerate(X.T):
-	newarr = scaler.fit_transform(v.reshape(-1,1))
-	XScaled[:,k] = newarr[:,0]
-
-
-clf = RandomForestClassifier()
-labels = []
-for v in versions[:,0]:
-	if v == 0:
-		labels.append('0')
-	else:
-		labels.append('1')
-
-
-scores = cross_val_score(clf, X, labels, cv=10)
-print scores
-print np.mean(scores)
-
-
-# testset = X[62:73,:]
-# testlabels = versions[62:73,:]
+g0,g1 = divideGames(games)
+X0 = getInstances(g0)
+X1 = getInstances(g1)
+XScaled0 = scale(X0, g0)
+XScaled1 = scale(X1, g1)
+versions0 = getVersions(g0)
+versions1 = getVersions(g1)
+labels0 = getLabels(versions0)
+labels1 = getLabels(versions1)
 
 
 
+# clf = RandomForestClassifier()
+# scores = cross_val_score(clf, X, labels, cv=10)
+# print scores
+# print np.mean(scores)
 
+# clf = svm.SVC(kernel='linear')
+# scores = cross_val_score(clf, X, labels, cv=10)
+# print scores
+# print np.mean(scores)
 
-# print XScaled
-# print versions[:,0]
+pca = PCA(n_components=2)
+p = pca.fit_transform(X)
+# print pca.get_covariance()
+plt.scatter(p[:, 0], p[:, 1])
+plt.show()
 
-# Y = TSNE(n_components=2, n_iter=2000).fit_transform(XScaled)
-# plt.scatter(Y[:, 0], Y[:, 1], c=versions[:,0])
+# Y = TSNE(n_components=2, n_iter=50000).fit_transform(X)
+# plt.scatter(Y[:, 0], Y[:, 1])
 # plt.show()
+
+# TODO 
+# PCA -> clustering
+# Correlation matrix
+# SVM, LOGISTIC REG, maybe ANN, gradient boosting
+
+
+
+# avgHR = []
+# stdHR = []
+# minHR = []
+# maxHR = []
+# diffHR = []
+# initHR = []
+# endHR = []
+# shiftHR = []
+# timestampMaxHR = []
+# timestampMinHR = []
+# diffTimestampHR = []
+# hrv = []
+# avgSC = []
+# stdSC = []
+# minSC = []
+# maxSC = []
+# diffSC =[]
+# initSC = []
+# endSC = []
+# shiftSC = []
+# timestampMaxSC = []
+# timestampMinSC = []
+# diffTimestampSC = []
+# version = []
+# sumAdvisorMood = []
+# averageInfoOpen = []
+# stdInfoOpen = []
+# averageTimeToAnswerDilemma = []
+# stdTimeToAnswerDilemma = []
+# averageTimeDilemmaOpen = []
+# stdTimeDilemmaOpen = []
+# sumPosFeedback = []
+# sumNegFeedback = []
+# sumNeuFeedback = []
+# sumAdviceRequested = []
+# sumInfosRead = []
+# sumInfos = []
+# avgTimesDilemmaOpened = []
+# stdTimesDilemmaOpened = []
+# sumDirectInfo = []
+# sumIndirectInfo = []
+
+
+
+# for g in games:
+# 	avgHR.append(g.avgHR)
+# 	stdHR.append(g.avgHR)
+# 	minHR.append(g.avgHR)
+# 	maxHR.append(g.avgHR)
+# 	diffHR.append(g.avgHR)
+# 	initHR.append(g.avgHR)
+# 	endHR.append(g.avgHR)
+# 	shiftHR.append(g.avgHR)
+# 	timestampMaxHR.append(g.avgHR)
+# 	timestampMinHR.append(g.avgHR)
+# 	diffTimestampHR.append(g.avgHR)
+# 	hrv.append(g.avgHR)
+# 	avgSC.append(g.avgHR)
+# 	stdSC.append(g.avgHR)
+# 	minSC.append(g.avgHR)
+# 	maxSC.append(g.avgHR)
+# 	diffSC.append(g.avgHR)
+# 	initSC.append(g.avgHR)
+# 	endSC.append(g.avgHR)
+# 	shiftSC.append(g.avgHR)
+# 	timestampMaxSC.append(g.avgHR)
+# 	timestampMinSC.append(g.avgHR)
+# 	diffTimestampSC.append(g.avgHR)
+# 	version.append(g.version)
+# 	sumAdvisorMood.append(g.avgHR)
+# 	averageInfoOpen.append(g.avgHR)
+# 	stdInfoOpen.append(g.avgHR)
+# 	averageTimeToAnswerDilemma.append(g.avgHR)
+# 	stdTimeToAnswerDilemma.append(g.avgHR)
+# 	averageTimeDilemmaOpen.append(g.avgHR)
+# 	stdTimeDilemmaOpen.append(g.avgHR)
+# 	sumPosFeedback.append(g.avgHR)
+# 	sumNegFeedback.append(g.avgHR)
+# 	sumNeuFeedback.append(g.avgHR)
+# 	sumAdviceRequested.append(g.avgHR)
+# 	sumInfosRead.append(g.avgHR)
+# 	sumInfos.append(g.sumInfos)
+# 	avgTimesDilemmaOpened.append(g.avgTimesDilemmaOpened)
+# 	stdTimesDilemmaOpened.append(stdTimesDilemmaOpened)
+# 	sumDirectInfo.append(sumDirectInfo)
+# 	sumIndirectInfo.append(sumIndirectInfo)
+
 
