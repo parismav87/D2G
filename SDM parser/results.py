@@ -114,22 +114,36 @@ class Game:
 		self.sumIndirectInfo = 0
 		self.dilemmaArray = []
 
-
-	def toArray(self):
+	def toArray(self, mode):
 		result = []
-		result.extend([self.avgHR, self.stdHR, self.minHR,	self.maxHR, self.diffHR, self.initHR, self.endHR, self.shiftHR, self.timestampMaxHR, self.timestampMinHR, self.diffTimestampHR, 
-		self.hrv, self.minSC, self.maxSC, self.diffSC, self.initSC, self.endSC, self.shiftSC, self.timestampMaxSC, self.timestampMinSC, self.diffTimestampSC,
-		self.avgSC, self.stdSC, self.sumAdvisorMood, self.averageInfoOpen, self.stdInfoOpen, self.averageTimeToAnswerDilemma, self.stdTimeToAnswerDilemma,
-		self.averageTimeDilemmaOpen, self.stdTimeDilemmaOpen, self.sumPosFeedback, self.sumNegFeedback, self.sumNeuFeedback, self.sumAdviceRequested, self.sumInfosRead,
-		self.sumInfos, self.avgTimesDilemmaOpened, self.stdTimesDilemmaOpened, self.sumDirectInfo, self.sumIndirectInfo])
+		if mode == "all":
+			result.extend([self.avgHR, self.stdHR, self.minHR,	self.maxHR, self.diffHR, self.initHR, self.endHR, self.shiftHR, self.timestampMaxHR, self.timestampMinHR, self.diffTimestampHR, 
+			self.hrv, self.minSC, self.maxSC, self.diffSC, self.initSC, self.endSC, self.shiftSC, self.timestampMaxSC, self.timestampMinSC, self.diffTimestampSC,
+			self.avgSC, self.stdSC, self.sumAdvisorMood, self.averageInfoOpen, self.stdInfoOpen, self.averageTimeToAnswerDilemma, self.stdTimeToAnswerDilemma,
+			self.averageTimeDilemmaOpen, self.stdTimeDilemmaOpen, self.sumPosFeedback, self.sumNegFeedback, self.sumNeuFeedback, self.sumAdviceRequested, self.sumInfosRead,
+			self.sumInfos, self.avgTimesDilemmaOpened, self.stdTimesDilemmaOpened, self.sumDirectInfo, self.sumIndirectInfo])
+		elif mode == "sensor":
+			result.extend([self.avgHR, self.stdHR, self.minHR,	self.maxHR, self.diffHR, self.initHR, self.endHR, self.shiftHR, self.timestampMaxHR, self.timestampMinHR, self.diffTimestampHR, 
+			self.hrv, self.minSC, self.maxSC, self.diffSC, self.initSC, self.endSC, self.shiftSC, self.timestampMaxSC, self.timestampMinSC, self.diffTimestampSC, self.avgSC, self.stdSC])
+		elif mode == "game":
+			result.extend([self.sumAdvisorMood, self.averageInfoOpen, self.stdInfoOpen, self.averageTimeToAnswerDilemma, self.stdTimeToAnswerDilemma,
+			self.averageTimeDilemmaOpen, self.stdTimeDilemmaOpen, self.sumPosFeedback, self.sumNegFeedback, self.sumNeuFeedback, self.sumAdviceRequested, self.sumInfosRead,
+			self.sumInfos, self.avgTimesDilemmaOpened, self.stdTimesDilemmaOpened, self.sumDirectInfo, self.sumIndirectInfo])
 		return result
 
-	def getFeatureNames(self):
+	def getFeatureNames(self, mode):
 		result = []
-		result.extend(["avgHR", "stdHR", "minHR", "maxHR", "diffHR", "initHR", "endHR", "shiftHR", "timestampMaxHR", "timestampMinHR", "diffTimestampHR", 
-		"hrv", "minSC", "maxSC", "diffSC", "initSC", "endSC", "shiftSC", "timestampMaxSC", "timestampMinSC", "diffTimestampSC", "avgSC", "stdSC", "sumAdvisorMood",
-		"averageInfoOpen", "stdInfoOpen", "averageTimeToAnswerDilemma", "stdTimeToAnswerDilemma", "averageTimeDilemmaOpen", "stdTimeDilemmaOpen", "sumPosFeedback", 
-		"sumNegFeedback", "sumNeuFeedback", "sumAdviceRequested", "sumInfosRead", "sumInfos", "avgTimesDilemmaOpened", "stdTimesDilemmaOpened", "sumDirectInfo", "sumIndirectInfo"])
+		if mode=="all":
+			result.extend(["avgHR", "stdHR", "minHR", "maxHR", "diffHR", "initHR", "endHR", "shiftHR", "timestampMaxHR", "timestampMinHR", "diffTimestampHR", 
+			"hrv", "minSC", "maxSC", "diffSC", "initSC", "endSC", "shiftSC", "timestampMaxSC", "timestampMinSC", "diffTimestampSC", "avgSC", "stdSC", "sumAdvisorMood",
+			"averageInfoOpen", "stdInfoOpen", "averageTimeToAnswerDilemma", "stdTimeToAnswerDilemma", "averageTimeDilemmaOpen", "stdTimeDilemmaOpen", "sumPosFeedback", 
+			"sumNegFeedback", "sumNeuFeedback", "sumAdviceRequested", "sumInfosRead", "sumInfos", "avgTimesDilemmaOpened", "stdTimesDilemmaOpened", "sumDirectInfo", "sumIndirectInfo"])
+		elif mode=="sensor":
+			result.extend(["avgHR", "stdHR", "minHR", "maxHR", "diffHR", "initHR", "endHR", "shiftHR", "timestampMaxHR", "timestampMinHR", "diffTimestampHR", 
+			"hrv", "minSC", "maxSC", "diffSC", "initSC", "endSC", "shiftSC", "timestampMaxSC", "timestampMinSC", "diffTimestampSC", "avgSC", "stdSC"])
+		elif mode=="game":
+			result.extend(["sumAdvisorMood", "averageInfoOpen", "stdInfoOpen", "averageTimeToAnswerDilemma", "stdTimeToAnswerDilemma", "averageTimeDilemmaOpen", "stdTimeDilemmaOpen", "sumPosFeedback", 
+			"sumNegFeedback", "sumNeuFeedback", "sumAdviceRequested", "sumInfosRead", "sumInfos", "avgTimesDilemmaOpened", "stdTimesDilemmaOpened", "sumDirectInfo", "sumIndirectInfo"])
 		return result
 
 games = []
@@ -236,14 +250,14 @@ def getVersions(games):
 		versions[k,0] = v.version
 	return versions
 
-def getInstances(games):
-	X = np.zeros((len(games),len(games[0].toArray())))
+def getInstances(games, mode):
+	X = np.zeros((len(games),len(games[0].toArray(mode))))
 	for k,v in enumerate(games):
-		X[k,:] = v.toArray()
+		X[k,:] = v.toArray(mode)
 	return X
 
-def scale(instances, games):
-	XScaled = np.zeros((len(games),len(games[0].toArray())))
+def scale(instances, games, mode):
+	XScaled = np.zeros((len(games),len(games[0].toArray(mode))))
 	scaler = MinMaxScaler()
 	for k,v in enumerate(instances.T):
 		newarr = scaler.fit_transform(v.reshape(-1,1))
@@ -274,17 +288,18 @@ for k,v in enumerate(games):
 		games.pop(k)
 
 
-X = getInstances(games)
-XScaled = scale(X, games)
+mode = "all"
+X = getInstances(games, mode)
+XScaled = scale(X, games, mode)
 versions = getVersions(games)
 labels = getLabels(versions)
 # print X
 
 g0,g1 = divideGames(games)
-X0 = getInstances(g0)
-X1 = getInstances(g1)
-XScaled0 = scale(X0, g0)
-XScaled1 = scale(X1, g1)
+X0 = getInstances(g0, mode)
+X1 = getInstances(g1, mode)
+XScaled0 = scale(X0, g0, mode)
+XScaled1 = scale(X1, g1, mode)
 versions0 = getVersions(g0)
 versions1 = getVersions(g1)
 labels0 = getLabels(versions0)
@@ -296,11 +311,11 @@ clf = RandomForestClassifier()
 clf.fit(X, labels)
 
 # print clf.feature_importances_
-# for k,v in enumerate(games[0].toArray()):
-# 	print clf.feature_importances_[k] , " - ", games[0].getFeatureNames()[k]
-# scores = cross_val_score(clf, X, labels, cv=10)
-# print scores
-# print np.mean(scores)
+for k,v in enumerate(games[0].toArray(mode)):
+	print clf.feature_importances_[k] , " - ", games[0].getFeatureNames(mode)[k]
+scores = cross_val_score(clf, X, labels, cv=10)
+print scores
+print np.mean(scores)
 
 # clf = svm.SVC(kernel='linear')
 # scores = cross_val_score(clf, X, labels, cv=10)
