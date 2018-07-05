@@ -124,6 +124,13 @@ class Game:
 		self.sumInfos, self.avgTimesDilemmaOpened, self.stdTimesDilemmaOpened, self.sumDirectInfo, self.sumIndirectInfo])
 		return result
 
+	def getFeatureNames(self):
+		result = []
+		result.extend(["avgHR", "stdHR", "minHR", "maxHR", "diffHR", "initHR", "endHR", "shiftHR", "timestampMaxHR", "timestampMinHR", "diffTimestampHR", 
+		"hrv", "minSC", "maxSC", "diffSC", "initSC", "endSC", "shiftSC", "timestampMaxSC", "timestampMinSC", "diffTimestampSC", "avgSC", "stdSC", "sumAdvisorMood",
+		"averageInfoOpen", "stdInfoOpen", "averageTimeToAnswerDilemma", "stdTimeToAnswerDilemma", "averageTimeDilemmaOpen", "stdTimeDilemmaOpen", "sumPosFeedback", 
+		"sumNegFeedback", "sumNeuFeedback", "sumAdviceRequested", "sumInfosRead", "sumInfos", "avgTimesDilemmaOpened", "stdTimesDilemmaOpened", "sumDirectInfo", "sumIndirectInfo"])
+		return result
 
 games = []
 arr1 = []
@@ -271,7 +278,7 @@ X = getInstances(games)
 XScaled = scale(X, games)
 versions = getVersions(games)
 labels = getLabels(versions)
-print X
+# print X
 
 g0,g1 = divideGames(games)
 X0 = getInstances(g0)
@@ -285,7 +292,12 @@ labels1 = getLabels(versions1)
 
 
 
-# clf = RandomForestClassifier()
+clf = RandomForestClassifier()
+clf.fit(X, labels)
+
+# print clf.feature_importances_
+# for k,v in enumerate(games[0].toArray()):
+# 	print clf.feature_importances_[k] , " - ", games[0].getFeatureNames()[k]
 # scores = cross_val_score(clf, X, labels, cv=10)
 # print scores
 # print np.mean(scores)
@@ -295,11 +307,11 @@ labels1 = getLabels(versions1)
 # print scores
 # print np.mean(scores)
 
-pca = PCA(n_components=2)
-p = pca.fit_transform(X)
-# print pca.get_covariance()
-plt.scatter(p[:, 0], p[:, 1])
-plt.show()
+# pca = PCA(n_components=2)
+# p = pca.fit_transform(X)
+# # print pca.get_covariance()
+# plt.scatter(p[:, 0], p[:, 1])
+# plt.show()
 
 # Y = TSNE(n_components=2, n_iter=50000).fit_transform(X)
 # plt.scatter(Y[:, 0], Y[:, 1])
